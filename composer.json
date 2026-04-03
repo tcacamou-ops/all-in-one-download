@@ -1,0 +1,48 @@
+{
+    "name": "tcacamou/all-in-one-download",
+    "autoload": {
+        "psr-4": {
+            "AllI1D\\": "includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AllI1D\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "tcacamou",
+            "email": "tcacamou@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "roots/wordpress": "@stable",
+        "squizlabs/php_codesniffer": "^3.7",
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpstan/phpstan": "^1.10",
+        "szepeviktor/phpstan-wordpress": "^1.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "yoast/wp-test-utils": "^1.2"
+    },
+    "config": {
+        "allow-plugins": {
+            "roots/wordpress-core-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "phpcs": "phpcs",
+        "phpcs:fix": "phpcbf",
+        "phpstan": "phpstan analyse",
+        "check": [
+            "@phpcs",
+            "@phpstan"
+        ],
+        "test": "phpunit --configuration tests/phpunit.xml"
+    },
+    "require": {
+        "honemo/wp-github-updater": "^1.0"
+    }
+}

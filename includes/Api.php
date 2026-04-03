@@ -1,0 +1,102 @@
+<?php
+namespace AllI1D;
+
+use AllI1D\Api\MediaApi;
+use AllI1D\Api\TvShowApi;
+use AllI1D\Api\MovieApi;
+use AllI1D\Api\ListingApi;
+
+class Api {
+
+	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
+	public static $instance = null;
+
+	/**
+	 * REST API route namespace.
+	 *
+	 * @var string
+	 */
+	public static $route_namespace = 'all-i1d/v1';
+
+	/**
+	 * Media API instance.
+	 *
+	 * @var \AllI1D\Api\MediaApi
+	 */
+	public MediaApi $media_api;
+
+	/**
+	 * TvShow API instance.
+	 *
+	 * @var \AllI1D\Api\TvShowApi
+	 */
+	public TvShowApi $tv_show_api;
+
+	/**
+	 * Movie API instance.
+	 *
+	 * @var \AllI1D\Api\MovieApi
+	 */
+	public MovieApi $movie_api;
+
+	/**
+	 * Listing API instance.
+	 *
+	 * @var \AllI1D\Api\ListingApi
+	 */
+	public ListingApi $listing_api;
+
+	/**
+	 * Obtenir l'instance unique de Api.
+	 *
+	 * @return self
+	 */
+	public static function get_instance(): self {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		// Enregistre l'api media.
+		$this->media_api   = new MediaApi( self::$route_namespace );
+		$this->tv_show_api = new TvShowApi( self::$route_namespace );
+		$this->movie_api   = new MovieApi( self::$route_namespace );
+		$this->listing_api = new ListingApi( self::$route_namespace );
+	}
+
+	/**
+	 * Get API data for localization.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get_data(): array {
+		$data = [
+			'nonce'  => \wp_create_nonce( 'wp_rest' ),
+			'routes' => $this->get_routes(),
+		];
+		return $data;
+	}
+
+	/**
+	 * Get all registered routes.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_routes(): array {
+		$routes = [];
+		$routes = array_merge( $this->media_api->get_routes(), $routes );
+		$routes = array_merge( $this->tv_show_api->get_routes(), $routes );
+		$routes = array_merge( $this->movie_api->get_routes(), $routes );
+		$routes = array_merge( $this->listing_api->get_routes(), $routes );
+		return $routes;
+	}
+}

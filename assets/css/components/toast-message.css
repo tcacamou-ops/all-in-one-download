@@ -1,0 +1,48 @@
+/* Style de base pour les toasts */
+.toast {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+}
+
+/* Toast de type succès */
+.toast-success {
+    background-color: #4caf50;
+}
+
+/* Toast de type erreur */
+.toast-error {
+    background-color: #f44336;
+}
+
+/* Toast de type information */
+.toast-info {
+    background-color: #2196f3;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}

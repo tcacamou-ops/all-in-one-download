@@ -1,0 +1,52 @@
+/* Overlay flouté */
+.alli1d-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modale centrée */
+.alli1d-modal {
+    background: #F0F0F1;
+    color: #141414;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 90vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Bouton de fermeture */
+.alli1d-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    color: #757575;
+    cursor: pointer;
+    z-index: 2;
+    transition: color 0.2s;
+}
+.alli1d-modal-close:hover {
+    color: #141414;
+}
+
+/* Contenu de la modale */
+.alli1d-modal-content {
+    width: 100%;
+    margin-top: 1.5rem;
+}

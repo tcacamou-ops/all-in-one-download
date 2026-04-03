@@ -1,0 +1,49 @@
+# Development and build files
+.git
+.github
+.tcacamou
+.gitignore
+.gitattributes
+.distignore
+composer.json
+composer.lock
+package.json
+package-lock.json
+node_modules
+phpcs.xml
+phpstan.neon
+.phpcs.xml.cache
+.phpunit.result.cache
+
+# Tests
+tests
+phpunit.xml
+.phpunit.xml.dist
+
+# Documentation
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+RELEASE.md
+
+# Release scripts
+create-release.sh
+
+# IDE and editor files
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# WordPress development
+wordpress
+
+# Various
+*.log
+*.tmp
+*.cache
+.env
+.env.*
+!.env.example
