@@ -41,9 +41,20 @@ jobs:
           
           # Copy files to the plugin directory, excluding those in .distignore
           echo "Copying files..."
-          rsync -av --exclude-from=.distignore \
+          rsync -av \
             --exclude='.git' \
-            --exclude='.tcacamou' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.distignore' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='phpcs.xml' \
+            --exclude='phpstan.neon' \
+            --exclude='phpunit.xml' \
+            --exclude='composer.json' \
+            --exclude='composer.lock' \
+            --exclude='.editorconfig' \
+            --exclude='.gitattributes' \
             ./ "${PLUGIN_DIR}/"
           
           # Create the ZIP file
