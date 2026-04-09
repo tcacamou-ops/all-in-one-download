@@ -34,6 +34,7 @@ return array(
     'AllI1D\\Models\\Repositories\\TvShowRepository' => $baseDir . '/includes/Models/Repositories/TvShowRepository.php',
     'AllI1D\\Models\\TvShow' => $baseDir . '/includes/Models/TvShow.php',
     'AllI1D\\Pages\\Dashboard' => $baseDir . '/includes/Pages/Dashboard.php',
+    'AllI1D\\Pages\\Settings' => $baseDir . '/includes/Pages/Settings.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'honemo\\updater\\Updater' => $vendorDir . '/honemo/wp-github-updater/src/Updater.php',
 );

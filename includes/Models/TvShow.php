@@ -71,6 +71,8 @@ class TvShow {
 	 */
 	private ?int $max_saison = null;
 
+	public const DEFAULT_DIRECTORY = '/downloads/TvShows';
+
 	private const VALID_STATUSES = [ 'actif', 'inactif', 'downloaded' ];
 
 	/**
@@ -429,7 +431,7 @@ class TvShow {
 	 * @return string
 	 */
 	public function get_download_directory( int $saison ): string {
-		$tv_show_directory = get_option( 'tv_show_directory', '/home/debian/Downloads/TvShows' );
+		$tv_show_directory = get_option( 'tv_show_directory', self::DEFAULT_DIRECTORY );
 		$tv_show_name      = preg_replace( '/[^a-zA-Z0-9_-]/', '', str_replace( ' ', '_', $this->get_title() ) );
 		return trailingslashit( implode( '/', [ $tv_show_directory, $tv_show_name, $saison ] ) );
 	}

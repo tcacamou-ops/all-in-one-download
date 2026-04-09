@@ -2,6 +2,7 @@
 namespace AllI1D;
 
 use AllI1D\Pages\Dashboard;
+use AllI1D\Pages\Settings;
 use AllI1D\Api;
 
 class Admin {
@@ -14,6 +15,9 @@ class Admin {
 
 		// Ajouter le menu d'administration.
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ], 20 );
+
+		// Enregistrer les réglages du plugin.
+		add_action( 'admin_init', [ $this, 'register_settings' ] );
 
 		// Enqueue les scripts et styles pour l'administration.
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
@@ -50,6 +54,15 @@ class Admin {
 			'all-in-one-download',                           // Slug du menu.
 			[ $this, 'render_dashboard' ],
 			0,
+		);
+		add_submenu_page(
+			'all-in-one-download',
+			__( 'Paramètres', 'all-in-one-download' ),
+			__( 'Paramètres', 'all-in-one-download' ),
+			'alli1d',
+			'all-in-one-download-settings',
+			[ $this, 'render_settings' ],
+			10,
 		);
 	}
 
@@ -161,5 +174,21 @@ class Admin {
 		// Déléguer l'affichage au Dashboard.
 		$dashboard = new Dashboard();
 		$dashboard->render();
+	}
+
+	/**
+	 * Register plugin settings.
+	 */
+	public function register_settings(): void {
+		$settings = new Settings();
+		$settings->register_settings();
+	}
+
+	/**
+	 * Render the settings page.
+	 */
+	public function render_settings(): void {
+		$settings = new Settings();
+		$settings->render();
 	}
 }

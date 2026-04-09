@@ -57,6 +57,7 @@ class ComposerStaticInit9c9c25b01a22dd8edfbb9134b38ad5cf
         'AllI1D\\Models\\Repositories\\TvShowRepository' => __DIR__ . '/../..' . '/includes/Models/Repositories/TvShowRepository.php',
         'AllI1D\\Models\\TvShow' => __DIR__ . '/../..' . '/includes/Models/TvShow.php',
         'AllI1D\\Pages\\Dashboard' => __DIR__ . '/../..' . '/includes/Pages/Dashboard.php',
+        'AllI1D\\Pages\\Settings' => __DIR__ . '/../..' . '/includes/Pages/Settings.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'honemo\\updater\\Updater' => __DIR__ . '/..' . '/honemo/wp-github-updater/src/Updater.php',
     );

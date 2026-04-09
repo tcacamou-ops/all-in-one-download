@@ -64,6 +64,8 @@ class Movie {
 	 */
 	private array $urls = [];
 
+	public const DEFAULT_DIRECTORY = '/downloads/Movies';
+
 	private const VALID_STATUSES = [ 'actif', 'inactif', 'downloaded' ];
 
 	/**
@@ -302,7 +304,7 @@ class Movie {
 	 * @return string
 	 */
 	public function get_download_directory(): string {
-		return trailingslashit( get_option( 'movie_directory', '/home/debian/Downloads/Movies' ) );
+		return trailingslashit( get_option( 'movie_directory', self::DEFAULT_DIRECTORY ) );
 	}
 
 	/**

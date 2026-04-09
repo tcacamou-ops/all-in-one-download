@@ -4,7 +4,7 @@ Tags: download, media, movies, tv-shows, automation
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 0.0.4
+Stable tag: 0.0.5
 License: Proprietary
 License URI: 
 
@@ -101,21 +101,14 @@ The system automatically detects existing media by title and adds new URLs to ex
 5. Detailed media view with metadata
 
 == Changelog ==
+= 0.0.5 =
+09/042026
 
-= 1.0.0 =
-* Initial release
-* Movie and TV show management
-* Automatic URL processing
-* REST API endpoints
-* Cron-based automation
-* Search and filtering
-* Comprehensive logging system
-* Multi-status tracking
+Feat : Add the default forlders management
 
-== Upgrade Notice ==
+= 0.0.4 =
 
-= 1.0.0 =
-Initial release of All-in-one Download plugin.
+Official release
 
 == Technical Details ==
 
