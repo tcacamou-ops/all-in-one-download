@@ -3,7 +3,7 @@
         'name' => 'tcacamou/all-in-one-download',
         'pretty_version' => 'dev-trunk',
         'version' => 'dev-trunk',
-        'reference' => 'bf7b76dcd055d4c32c742e12d0441dbaac8e63aa',
+        'reference' => '229aac96dbc1a9f41cd19e417b2126341c987e14',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'tcacamou/all-in-one-download' => array(
             'pretty_version' => 'dev-trunk',
             'version' => 'dev-trunk',
-            'reference' => 'bf7b76dcd055d4c32c742e12d0441dbaac8e63aa',
+            'reference' => '229aac96dbc1a9f41cd19e417b2126341c987e14',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

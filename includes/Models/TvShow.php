@@ -415,7 +415,7 @@ class TvShow {
 	public function next_episode( int $saison, int $current_episode ) {
 		if ( isset( $this->data['saison'] ) && is_array( $this->data['saison'] ) ) {
 			foreach ( $this->data['saison'] as $index => $saison_data ) {
-				if ( isset( $saison_data['id'] ) && $saison_data['id'] === $saison ) {
+				if ( isset( $saison_data['id'] ) && (int) $saison_data['id'] === $saison ) {
 					$this->data['saison'][ $index ]['lastepisode'] = $current_episode;
 					break;
 				}

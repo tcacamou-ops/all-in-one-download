@@ -4,7 +4,7 @@ Tags: download, media, movies, tv-shows, automation
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 0.0.5
+Stable tag: 0.0.6
 License: Proprietary
 License URI: 
 
@@ -101,13 +101,13 @@ The system automatically detects existing media by title and adds new URLs to ex
 5. Detailed media view with metadata
 
 == Changelog ==
-= 0.0.5 =
-09/042026
+= 0.0.6 =
+Fix : Next episode in tvshow cron
 
+= 0.0.5 =
 Feat : Add the default forlders management
 
 = 0.0.4 =
-
 Official release
 
 == Technical Details ==

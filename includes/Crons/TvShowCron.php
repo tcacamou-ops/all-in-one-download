@@ -89,12 +89,13 @@ class TvShowCron {
 					$download_item['dest_directory'] = $tv_show->get_download_directory( $saison['id'] );
 					$downloaded                      = apply_filters( 'alli1d_process_torrent', $download_item );
 					if ( true === $downloaded['downloaded'] ) {
-						$tv_show->next_saison( $saison['id'] )->next_episode( $saison['id'], $episode );
+						$tv_show = $tv_show->next_episode( $saison['id'], $episode );
+						$tv_show = $tv_show->next_saison( $saison['id'] );
 						do_action( 'alli1d_log', 'Download launch : ' . $saison['id'] . ' - ' . $episode, Logs::NOTICE, Logs::SERIES_LOG );
 					} else {
 						do_action( 'alli1d_log', 'Download failed : ' . $saison['id'] . ' - ' . $episode, Logs::ERROR, Logs::SERIES_LOG );
 					}
-					do_action( 'alli1d_log', 'Download Item : ' . wp_json_encode( $download_item ), Logs::DEBUG, Logs::SERIES_LOG );
+					do_action( 'alli1d_log', 'Download Result : ' . wp_json_encode( $downloaded ), Logs::DEBUG, Logs::SERIES_LOG );
 				}
 				$tv_show_repository->save_tv_show( $tv_show );
 				sleep( 3 ); // Pour éviter de surcharger le serveur avec trop de requêtes en même temps.
