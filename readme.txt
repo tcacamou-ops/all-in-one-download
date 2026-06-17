@@ -4,7 +4,7 @@ Tags: download, media, movies, tv-shows, automation
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 0.0.6
+Stable tag: 1.0.0
 License: Proprietary
 License URI: 
 
@@ -101,14 +101,35 @@ The system automatically detects existing media by title and adds new URLs to ex
 5. Detailed media view with metadata
 
 == Changelog ==
+
+= 1.0.0 =
+* Added: Status page with submenu in the WordPress administration
+* Added: Full logging system with levels (DEBUG, NOTICE, ERROR) and categories (movies, series)
+* Added: REST API endpoint for log retrieval
+* Added: LogsManager component (PHP + JS) for real-time log display
+* Added: Improved CronsManager component with finer cron management
+* Changed: Redesigned administration interface (toolbar, modals, media items)
+
 = 0.0.6 =
-Fix : Next episode in tvshow cron
+* Fixed: Episode and season progression in TvShowCron (next_episode now called before next_saison)
+* Fixed: Type comparison in TvShow::next_episode() (explicit cast to int)
+* Fixed: Debug log now shows the download result instead of the submitted item
 
 = 0.0.5 =
-Feat : Add the default forlders management
+* Added: Settings page to configure movie and TV show download directories
+* Changed: Default directories changed to /downloads/Movies and /downloads/TvShows
 
 = 0.0.4 =
-Official release
+* Changed: Updated release workflow to exclude unnecessary files from the plugin ZIP package
+
+= 0.0.3 =
+* Changed: Fixed GitHub sync workflow (added Composer dependency installation step)
+
+= 0.0.2 =
+* Changed: Included vendor/ folder in the release package
+
+= 0.0.1 =
+* Initial release
 
 == Technical Details ==
 
