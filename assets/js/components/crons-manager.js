@@ -11,13 +11,26 @@ jQuery(document).ready(function ($) {
     $document.on('click', '#toggle-cron-banner', function() {
         toggle_cron_banner($('#cron-status-banner').is(':hidden'));
     });
-    
+
     function toggle_cron_banner(show) {
+        const $btn = $('#toggle-cron-banner');
         if (show) {
             $('#cron-status-banner').show();
+            $btn.attr('data-active', 'true');
         } else {
             $('#cron-status-banner').hide();
+            $btn.attr('data-active', 'false');
         }
+        updateToolbarPosition();
+    }
+
+    function updateToolbarPosition() {
+        let maxHeight = 0;
+        $('#cron-status-banner:visible, #logs-status-banner:visible').each(function() {
+            maxHeight = Math.max(maxHeight, $(this).outerHeight());
+        });
+        const bottom = maxHeight > 0 ? maxHeight + 16 : 24;
+        $('.alli1d-toolbar').css('bottom', bottom + 'px');
     }
     function media_sync_cron(event) {
         allI1d.requestWPApi(

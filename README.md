@@ -1,167 +1,158 @@
 # All-in-one Download
 
-A professional WordPress plugin to manage and automate movie and TV show downloads.
+A WordPress plugin to manage and automate movie and TV show downloads.
 
 ## Description
 
-All-in-one Download is a WordPress plugin that centralizes and automates the management of media downloads (movies and TV shows). It provides an intuitive administration interface and an automatic URL processing system.
+All-in-one Download centralizes and automates the management of media downloads (films et séries TV). It provides an admin dashboard, an automatic URL processing system, and a REST API for external integrations.
 
 ## Key Features
 
 ### Media Management
-- **Multi-format support**: Movies and TV Shows
-- **URL management**: Add and automatically process download links
-- **Automatic detection**: Identifies media type (movie or series)
-- **Metadata**: Manage titles, cover images, audio formats
-- **Statuses**: Track download states (active, inactive, downloaded)
+- **Movies & TV Shows**: full support for both types, including seasons and episodes
+- **URL processing**: add a download link and let the cron handle the rest
+- **Auto-detection**: identifies media type automatically
+- **Metadata**: title, cover image, audio format, status
+- **Statuses**: active, inactive, downloaded
 
-### Administration Interface
-- **Centralized dashboard**: Overview of all media
-- **Search and filtering**: Search by title and filter by type
-- **Cron management**: Control automatic tasks
-- **Visual indicators**: Media counters and statistics
-- **Intuitive forms**: Quick URL addition
+### Admin Dashboard
+- **Responsive UI**: built with Tailwind CSS, works on any screen size
+- **Search & filtering**: by title and media type
+- **Edit modals**: inline editing of movies and TV shows (title, search title, status, seasons)
+- **Media counters**: visual indicators per type
 
-### Automation
-- **WordPress Crons**: Automatic media processing
-  - `MediaCron`: Processes all pending URLs (hourly)
-  - `MovieCron`: Specifically processes movies
-  - `TvShowCron`: Processes TV shows
-- **Duplicate prevention**: Automatic detection of existing media
-- **Detailed logs**: Complete operation tracking
+### Cron Automation
+- **MediaCron** — processes all pending URLs (hourly)
+- **MovieCron** — movie-specific processing
+- **TvShowCron** — TV show processing, including next-episode detection
+- Duplicate prevention: new URLs are merged into existing entries
+- Manual trigger available from the dashboard
 
-### REST API
-- **ListingApi**: Retrieve media lists
-- **MediaApi**: Manage media URLs
-- **MovieApi**: Movie operations
-- **TvShowApi**: TV show operations
+### Log Viewer
+- Per-type log files: `medias.log`, `series.log`, `films.log`
+- Levels: `DEBUG`, `NOTICE`, `WARNING`, `ERROR`
+- Tail-based reading (last N lines) to avoid memory issues on large files
+- Accessible via the dashboard log viewer modal
+
+### REST API (`/wp-json/all-i1d/v1/`)
+
+| Endpoint | Description |
+|---|---|
+| `GET /logs` | Fetch log content (`file`, `num_lines` params) |
+| `GET /listing/refresh` | Refresh the media listing HTML |
+| `GET /listing/movie` | Get a movie item HTML |
+| `GET /listing/tvshow` | Get a TV show item HTML |
+| `POST /media` | Add a new media URL |
+| `GET /movie` | Movie operations |
+| `GET /tvshow` | TV show operations |
+
+All routes require the `alli1d` capability.
 
 ## Installation
 
-### Recommended Method (Using Releases)
+### From a release
 
-1. Download the latest release from [https://github.com/tcacamou-ops/all-in-one-download/releases](https://github.com/tcacamou-ops/all-in-one-download/releases)
-2. Extract the archive to your `wp-content/plugins/` folder
-3. Activate the plugin in WordPress administration
-4. Access the "Downloads" menu in the administration
+1. Download the latest ZIP from the [releases page](https://github.com/tcacamou-ops/all-in-one-download/releases)
+2. WordPress Admin → Plugins → Add New → Upload Plugin
+3. Activate and navigate to the **Downloads** menu
 
-### Alternative Method (Development)
+### From source (development)
 
-If you need the development version:
+```bash
+git clone <repo> wp-content/plugins/all-in-one-download
+cd wp-content/plugins/all-in-one-download
+composer install
+```
 
-1. Clone the repository into the `wp-content/plugins/` folder
-2. Install Composer dependencies:
-   ```bash
-   composer install --no-dev
-   ```
-3. Activate the plugin in WordPress administration
-4. Access the "Downloads" menu in the administration
+Activate the plugin in WordPress, then open the **Downloads** menu.
 
 ## Requirements
 
-- WordPress 5.0 or higher
-- PHP 7.4 or higher
-- Composer (for dependencies)
+- WordPress 5.0+
+- PHP 7.4+
+- MySQL 5.6+ / MariaDB 10.0+
+- Composer (development only)
 
 ## Project Structure
 
 ```
 all-in-one-download/
 ├── assets/
-│   ├── css/          # Admin interface styles
-│   └── js/           # JavaScript scripts and components
+│   ├── css/
+│   │   └── components/       # Per-component stylesheets (modale, toolbar, banners…)
+│   └── js/
+│       └── components/       # Per-component JS (listing, crons, logs, modale…)
 ├── includes/
-│   ├── Actions/      # Actions and logs
-│   ├── Api/          # REST API endpoints
-│   ├── Components/   # Interface components
-│   ├── Crons/        # Automatic tasks
-│   ├── Models/       # Data models and repositories
-│   └── Pages/        # Administration pages
-├── tests/            # PHPUnit unit tests
-└── vendor/           # Composer dependencies
+│   ├── Actions/              # Logs service
+│   ├── Api/                  # REST API classes (LogsApi, MediaApi, MovieApi…)
+│   ├── Components/           # HTML components (MovieItem, TvShowItem, CronsManager…)
+│   ├── Crons/                # WordPress cron handlers
+│   ├── Interfaces/           # PHP interfaces (Api)
+│   ├── Models/               # Entities and repositories
+│   └── Pages/                # Admin page renderers (Dashboard, Settings, Status)
+├── tests/                    # PHPUnit tests
+└── vendor/                   # Composer dependencies
 ```
-
-## Usage
-
-### Adding Media
-
-1. Access the "Downloads" dashboard
-2. Enter the media URL in the form
-3. The system automatically detects the type (movie or series)
-4. The cron processes the URL and creates the corresponding entry
-
-### Managing Automatic Tasks
-
-The plugin uses the WordPress cron system to process media automatically. You can:
-- View cron status in the dashboard
-- Manually trigger processing
-- Check logs to track activity
-
-### Search and Filter
-
-- Use the search bar to find media by title
-- Filter by type (Movies or TV Shows)
-- View details and URLs for each media
 
 ## Development
 
-### Code Standards
-
-The project follows WordPress coding standards:
+### Code quality
 
 ```bash
-# Check code
-composer phpcs
-
-# Auto-fix
-composer phpcs:fix
-
-# Static analysis
-composer phpstan
+composer phpcs        # Check WordPress coding standards
+composer phpcs:fix    # Auto-fix violations
+composer phpstan      # Static analysis
 ```
 
-### Unit Tests
+### Tests
 
 ```bash
 composer test
 ```
 
-Tests use PHPUnit with Brain Monkey to mock WordPress functions.
+Uses PHPUnit with Brain Monkey for WordPress function mocking.
 
 ## Architecture
 
-### Data Models
+### Data flow
 
-- **Media**: Represents a media URL pending processing
-- **Movie**: Represents a movie with its metadata
-- **TvShow**: Represents a TV show with episodes and seasons
+1. A URL is submitted via the admin form or the REST API
+2. It is stored as a **Media** entry
+3. The cron picks it up, detects the type, fetches metadata, and creates a **Movie** or **TvShow**
+4. Logs trace every step under `wp-content/uploads/alli1d/logs/`
 
-### Repositories
+### Key patterns
 
-- **MediaRepository**: Media URL management
-- **MovieRepository**: CRUD for movies
-- **TvShowRepository**: CRUD for TV shows
-
-### Logging System
-
-The plugin has a complete logging system to trace all operations:
-- Media logs
-- Movie logs
-- TV show logs
-- Levels: DEBUG, NOTICE, WARNING, ERROR
+- **Repository pattern** — `MovieRepository`, `TvShowRepository`, `MediaRepository`
+- **PSR-4 autoloading** via Composer (`AllI1D\` namespace)
+- **REST API interface** — all API classes implement `AllI1D\Interfaces\Api`
+- **Component rendering** — each UI block is a self-contained PHP class with a `render()` method
 
 ## Security
 
-- User capability verification
-- Input sanitization and validation
-- CSRF protection with nonces
-- Output escaping
-- Direct file access prevention
+- Capability check (`alli1d`) on all REST routes
+- Input sanitization and output escaping throughout
+- Nonce-based CSRF protection
+- Direct file access blocked
+
+## Changelog
+
+### 0.0.7
+- Feat: `LogsApi` REST endpoint — fetch last N lines of any log file
+- Feat: responsive log viewer modal with syntax coloring per log level
+- Feat: shared dark floating toolbar for Crons and Logs toggles
+- Feat: responsive bottom banners (crons & logs) with frosted-glass style
+- Feat: fully responsive edit modals for movies and TV shows
+
+### 0.0.6
+- Fix: next episode detection in TV show cron
+
+### 0.0.5
+- Feat: default folder management
+
+### 0.0.4
+- Official release
 
 ## License
 
-This plugin is distributed under a proprietary license.
-
-## Support
-
-For any questions or issues, please create an issue on the project repository.
+Proprietary — all rights reserved.

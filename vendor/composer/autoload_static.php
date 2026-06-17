@@ -33,6 +33,7 @@ class ComposerStaticInit9c9c25b01a22dd8edfbb9134b38ad5cf
         'AllI1D\\Admin' => __DIR__ . '/../..' . '/includes/Admin.php',
         'AllI1D\\Api' => __DIR__ . '/../..' . '/includes/Api.php',
         'AllI1D\\Api\\ListingApi' => __DIR__ . '/../..' . '/includes/Api/ListingApi.php',
+        'AllI1D\\Api\\LogsApi' => __DIR__ . '/../..' . '/includes/Api/LogsApi.php',
         'AllI1D\\Api\\MediaApi' => __DIR__ . '/../..' . '/includes/Api/MediaApi.php',
         'AllI1D\\Api\\MovieApi' => __DIR__ . '/../..' . '/includes/Api/MovieApi.php',
         'AllI1D\\Api\\TvShowApi' => __DIR__ . '/../..' . '/includes/Api/TvShowApi.php',
@@ -40,6 +41,7 @@ class ComposerStaticInit9c9c25b01a22dd8edfbb9134b38ad5cf
         'AllI1D\\Components\\Item' => __DIR__ . '/../..' . '/includes/Components/Item.php',
         'AllI1D\\Components\\Listing' => __DIR__ . '/../..' . '/includes/Components/Listing.php',
         'AllI1D\\Components\\ListingContainer' => __DIR__ . '/../..' . '/includes/Components/ListingContainer.php',
+        'AllI1D\\Components\\LogsManager' => __DIR__ . '/../..' . '/includes/Components/LogsManager.php',
         'AllI1D\\Components\\MediasMeter' => __DIR__ . '/../..' . '/includes/Components/MediasMeter.php',
         'AllI1D\\Components\\MovieItem' => __DIR__ . '/../..' . '/includes/Components/MovieItem.php',
         'AllI1D\\Components\\ToastMessage' => __DIR__ . '/../..' . '/includes/Components/ToastMessage.php',
@@ -58,6 +60,7 @@ class ComposerStaticInit9c9c25b01a22dd8edfbb9134b38ad5cf
         'AllI1D\\Models\\TvShow' => __DIR__ . '/../..' . '/includes/Models/TvShow.php',
         'AllI1D\\Pages\\Dashboard' => __DIR__ . '/../..' . '/includes/Pages/Dashboard.php',
         'AllI1D\\Pages\\Settings' => __DIR__ . '/../..' . '/includes/Pages/Settings.php',
+        'AllI1D\\Pages\\Status' => __DIR__ . '/../..' . '/includes/Pages/Status.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'honemo\\updater\\Updater' => __DIR__ . '/..' . '/honemo/wp-github-updater/src/Updater.php',
     );

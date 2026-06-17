@@ -3,7 +3,7 @@
  * Plugin Name: All-in-one Download
  * Plugin URI: https://github.com/tcacamou-ops/all-in-one-download
  * Description: A professional WordPress plugin to manage and automate movie and TV show downloads.
- * Version: 0.0.6
+ * Version: 0.0.7
  * Author: tcacamou
  * Author URI: https://github.com/tcacamou-ops
  * Text Domain: all-in-one-download

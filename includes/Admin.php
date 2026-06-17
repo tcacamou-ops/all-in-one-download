@@ -3,6 +3,7 @@ namespace AllI1D;
 
 use AllI1D\Pages\Dashboard;
 use AllI1D\Pages\Settings;
+use AllI1D\Pages\Status;
 use AllI1D\Api;
 
 class Admin {
@@ -64,6 +65,15 @@ class Admin {
 			[ $this, 'render_settings' ],
 			10,
 		);
+        add_submenu_page(
+			'all-in-one-download',
+			__( 'Statut', 'all-in-one-download' ),
+			__( 'Statut', 'all-in-one-download' ),
+			'alli1d',
+			'all-in-one-download-status',
+			[ $this, 'render_status' ],
+			10,
+		);
 	}
 
 	/**
@@ -102,6 +112,13 @@ class Admin {
 		wp_enqueue_script(
 			'crons-manager-script',
 			ALLI1D_URL . 'assets/js/components/crons-manager.js',
+			[ 'jquery' ],
+			'1.0.0',
+			true
+		);
+        wp_enqueue_script(
+			'logs-manager-script',
+			ALLI1D_URL . 'assets/js/components/logs-manager.js',
 			[ 'jquery' ],
 			'1.0.0',
 			true
@@ -165,6 +182,18 @@ class Admin {
 			[],
 			'1.0.0'
 		);
+		wp_enqueue_style(
+			'logs-manager-css',
+			ALLI1D_URL . 'assets/css/components/logs-manager.css',
+			[],
+			'1.0.0'
+		);
+		wp_enqueue_style(
+			'toolbar-css',
+			ALLI1D_URL . 'assets/css/components/toolbar.css',
+			[],
+			'1.0.0'
+		);
 	}
 
 	/**
@@ -191,4 +220,9 @@ class Admin {
 		$settings = new Settings();
 		$settings->render();
 	}
+
+    public function render_status(): void {
+        $status = new Status();
+        $status->render();
+    }
 }

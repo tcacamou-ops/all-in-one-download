@@ -23,6 +23,7 @@ class Logs {
 	 */
 	public function __construct() {
 		add_action( 'alli1d_log', [ $this, 'log_message' ], 10, 3 );
+        add_action( 'alli1d_get_log_content', [ $this, 'get_log_content' ], 10, 2 );
 		$this->ensure_alli1d_directory();
 	}
 
@@ -80,4 +81,43 @@ class Logs {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( $log_entry, 3, $destination );
 	}
+
+    /**
+     * Get the content of a log file.
+     *
+     * @param string $log_file  The log file name.
+     * @param int|null $num_lines The number of lines to retrieve from the end of the log file. If null, retrieves the entire log file.
+     * @return string The content of the log file.
+     */
+    public function get_log_content(string $log_file= self::MEDIAS_LOG, ?int $num_lines = null ): string {
+        $log_path = wp_upload_dir()['basedir'] . '/alli1d/logs/' . $log_file;
+        if ( file_exists( $log_path ) ) {
+            if ( $num_lines !== null ) {
+                $fp     = fopen( $log_path, 'rb' );
+                $buffer = '';
+                $found  = 0;
+                $pos    = filesize( $log_path );
+
+                while ( $pos > 0 && $found <= $num_lines ) {
+                    $chunk_size = min( 4096, $pos );
+                    $pos       -= $chunk_size;
+                    fseek( $fp, $pos );
+                    $buffer = fread( $fp, $chunk_size ) . $buffer;
+                    $found  = substr_count( $buffer, "\n" );
+                }
+
+                fclose( $fp );
+
+                $lines = explode( "\n", $buffer );
+                // Supprimer une éventuelle ligne vide finale.
+                if ( end( $lines ) === '' ) {
+                    array_pop( $lines );
+                }
+
+                return implode( "\n", array_slice( $lines, -$num_lines ) );
+            }
+            return file_get_contents( $log_path );
+        }
+        return '';
+    }
 }

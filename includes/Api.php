@@ -5,6 +5,7 @@ use AllI1D\Api\MediaApi;
 use AllI1D\Api\TvShowApi;
 use AllI1D\Api\MovieApi;
 use AllI1D\Api\ListingApi;
+use AllI1D\Api\LogsApi;
 
 class Api {
 
@@ -51,6 +52,13 @@ class Api {
 	public ListingApi $listing_api;
 
 	/**
+	 * Logs API instance.
+	 *
+	 * @var \AllI1D\Api\LogsApi
+	 */
+	public LogsApi $logs_api;
+
+	/**
 	 * Obtenir l'instance unique de Api.
 	 *
 	 * @return self
@@ -71,6 +79,7 @@ class Api {
 		$this->tv_show_api = new TvShowApi( self::$route_namespace );
 		$this->movie_api   = new MovieApi( self::$route_namespace );
 		$this->listing_api = new ListingApi( self::$route_namespace );
+		$this->logs_api    = new LogsApi( self::$route_namespace );
 	}
 
 	/**
@@ -97,6 +106,7 @@ class Api {
 		$routes = array_merge( $this->tv_show_api->get_routes(), $routes );
 		$routes = array_merge( $this->movie_api->get_routes(), $routes );
 		$routes = array_merge( $this->listing_api->get_routes(), $routes );
+		$routes = array_merge( $this->logs_api->get_routes(), $routes );
 		return $routes;
 	}
 }

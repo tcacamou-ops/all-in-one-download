@@ -10,6 +10,7 @@ return array(
     'AllI1D\\Admin' => $baseDir . '/includes/Admin.php',
     'AllI1D\\Api' => $baseDir . '/includes/Api.php',
     'AllI1D\\Api\\ListingApi' => $baseDir . '/includes/Api/ListingApi.php',
+    'AllI1D\\Api\\LogsApi' => $baseDir . '/includes/Api/LogsApi.php',
     'AllI1D\\Api\\MediaApi' => $baseDir . '/includes/Api/MediaApi.php',
     'AllI1D\\Api\\MovieApi' => $baseDir . '/includes/Api/MovieApi.php',
     'AllI1D\\Api\\TvShowApi' => $baseDir . '/includes/Api/TvShowApi.php',
@@ -17,6 +18,7 @@ return array(
     'AllI1D\\Components\\Item' => $baseDir . '/includes/Components/Item.php',
     'AllI1D\\Components\\Listing' => $baseDir . '/includes/Components/Listing.php',
     'AllI1D\\Components\\ListingContainer' => $baseDir . '/includes/Components/ListingContainer.php',
+    'AllI1D\\Components\\LogsManager' => $baseDir . '/includes/Components/LogsManager.php',
     'AllI1D\\Components\\MediasMeter' => $baseDir . '/includes/Components/MediasMeter.php',
     'AllI1D\\Components\\MovieItem' => $baseDir . '/includes/Components/MovieItem.php',
     'AllI1D\\Components\\ToastMessage' => $baseDir . '/includes/Components/ToastMessage.php',
@@ -35,6 +37,7 @@ return array(
     'AllI1D\\Models\\TvShow' => $baseDir . '/includes/Models/TvShow.php',
     'AllI1D\\Pages\\Dashboard' => $baseDir . '/includes/Pages/Dashboard.php',
     'AllI1D\\Pages\\Settings' => $baseDir . '/includes/Pages/Settings.php',
+    'AllI1D\\Pages\\Status' => $baseDir . '/includes/Pages/Status.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'honemo\\updater\\Updater' => $vendorDir . '/honemo/wp-github-updater/src/Updater.php',
 );
