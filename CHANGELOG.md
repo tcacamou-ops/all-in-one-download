@@ -5,6 +5,26 @@ All notable changes to All-in-one Download will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-06-30
+
+### Added
+- Log rotation with 48h retention and daily archiving at midnight
+
+### Changed
+- Add-on settings pages replaced by modals on the Status page
+- Better permissions and rights management
+- Improved JS banner management
+
+### Fixed
+- JS fixes
+- Security messages display
+
+### Security
+- Cap `num_lines` to `MAX_LOG_LINES` in log reader to prevent excessive reads
+- Fix path traversal vulnerability in download directory sanitization
+- Encrypt credentials at rest with AES-256-CBC
+- Whitelist column names in repository filter methods to prevent SQL injection
+
 ## [1.0.0] - 2026-06-17
 
 ### Added
@@ -73,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repository pattern for data access
 - GitHub Updater integration for automatic plugin updates
 
+[1.0.1]: https://github.com/tcacamou-ops/all-in-one-download/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/tcacamou-ops/all-in-one-download/compare/0.0.6...1.0.0
 [0.0.6]: https://github.com/tcacamou-ops/all-in-one-download/compare/0.0.5...0.0.6
 [0.0.5]: https://github.com/tcacamou-ops/all-in-one-download/compare/0.0.4...0.0.5
