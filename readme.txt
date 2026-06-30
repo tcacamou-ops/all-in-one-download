@@ -4,7 +4,7 @@ Tags: download, media, movies, tv-shows, automation
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: Proprietary
 License URI: 
 
@@ -102,22 +102,37 @@ The system automatically detects existing media by title and adds new URLs to ex
 
 == Changelog ==
 
+= 1.0.1 =
+* Added: Log rotation with 48h retention and daily archiving at midnight
+* Changed: Add-on settings pages replaced by modals on the Status page
+* Changed: Better permissions and rights management
+* Changed: Improved JS banner management
+* Fixed: JS fixes
+* Fixed: Security messages display
+* Security: Cap num_lines to MAX_LOG_LINES in log reader to prevent excessive reads
+* Security: Fix path traversal vulnerability in download directory sanitization
+* Security: Encrypt credentials at rest with AES-256-CBC
+* Security: Whitelist column names in repository filter methods to prevent SQL injection
+
 = 1.0.0 =
 * Added: Status page with submenu in the WordPress administration
 * Added: Full logging system with levels (DEBUG, NOTICE, ERROR) and categories (movies, series)
-* Added: REST API endpoint for log retrieval
+* Added: REST API endpoint for log retrieval (LogsApi)
 * Added: LogsManager component (PHP + JS) for real-time log display
 * Added: Improved CronsManager component with finer cron management
 * Changed: Redesigned administration interface (toolbar, modals, media items)
+* Changed: Improved modal styling (modale.css)
+* Changed: Improved MovieItem and TvShowItem component styles
 
 = 0.0.6 =
-* Fixed: Episode and season progression in TvShowCron (next_episode now called before next_saison)
-* Fixed: Type comparison in TvShow::next_episode() (explicit cast to int)
+* Fixed: Fixed episode and season progression in TvShowCron: next_episode is now called before next_saison and returns the updated object
+* Fixed: Fixed type comparison in TvShow::next_episode() (explicit cast to int)
 * Fixed: Debug log now shows the download result instead of the submitted item
 
 = 0.0.5 =
 * Added: Settings page to configure movie and TV show download directories
-* Changed: Default directories changed to /downloads/Movies and /downloads/TvShows
+* Added: DEFAULT_DIRECTORY constants in Movie and TvShow models
+* Changed: Default directories changed to /downloads/Movies and /downloads/TvShows (removed machine-specific paths)
 
 = 0.0.4 =
 * Changed: Updated release workflow to exclude unnecessary files from the plugin ZIP package
@@ -126,11 +141,28 @@ The system automatically detects existing media by title and adds new URLs to ex
 * Changed: Fixed GitHub sync workflow (added Composer dependency installation step)
 
 = 0.0.2 =
-* Changed: Included vendor/ folder in the release package
+* Changed: Included vendor/ folder in the release package (removed .gitignore and .distignore)
 
 = 0.0.1 =
-* Initial release
-
+* Added: Initial release of All-in-one Download
+* Added: Movie management with full CRUD operations
+* Added: TV show management with episode and season tracking
+* Added: Automatic URL processing and media type detection
+* Added: WordPress cron-based automation (MediaCron, MovieCron, TvShowCron)
+* Added: Centralized administration dashboard
+* Added: Media search and filtering
+* Added: REST API endpoints for all media types
+* Added: Status tracking (active, inactive, downloaded)
+* Added: Metadata management (titles, cover images, audio formats)
+* Added: Duplicate prevention system
+* Added: User capability management
+* Added: WordPress security (nonces, sanitization, validation)
+* Added: PHPUnit test suite with Brain Monkey
+* Added: WordPress Coding Standards compliance
+* Added: PHPStan static analysis configuration
+* Added: Modern PHP architecture with namespaces and PSR-4 via Composer
+* Added: Repository pattern for data access
+* Added: GitHub Updater integration for automatic plugin updates
 == Technical Details ==
 
 = System Requirements =
