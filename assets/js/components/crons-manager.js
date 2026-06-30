@@ -1,20 +1,8 @@
 jQuery(document).ready(function ($) {
-    // On cache la baniière de base 
-    toggle_cron_banner($('#cron-status-banner').is(':hidden'));
-    
-    const $document = $(document); // Cache document lookup
-    console.log(allI1d);
-    // init events listeners
-    $document.on('click', '#media-sync-cron', media_sync_cron);
-    $document.on('click', '#tv-show-cron', tv_show_cron);
-    $document.on('click', '#movie-cron', movie_cron);
-    $document.on('click', '#toggle-cron-banner', function() {
-        toggle_cron_banner($('#cron-status-banner').is(':hidden'));
-    });
-
-    function toggle_cron_banner(show) {
+    allI1d.toggle_cron_banner = function(show) {
         const $btn = $('#toggle-cron-banner');
         if (show) {
+            allI1d.toggle_logs_banner(false);
             $('#cron-status-banner').show();
             $btn.attr('data-active', 'true');
         } else {
@@ -23,6 +11,18 @@ jQuery(document).ready(function ($) {
         }
         updateToolbarPosition();
     }
+
+    // On cache la banière de base 
+    allI1d.toggle_cron_banner($('#cron-status-banner').is(':hidden'));
+    
+    const $document = $(document); // Cache document lookup
+    // init events listeners
+    $document.on('click', '#media-sync-cron', media_sync_cron);
+    $document.on('click', '#tv-show-cron', tv_show_cron);
+    $document.on('click', '#movie-cron', movie_cron);
+    $document.on('click', '#toggle-cron-banner', function() {
+        allI1d.toggle_cron_banner($('#cron-status-banner').is(':hidden'));
+    });
 
     function updateToolbarPosition() {
         let maxHeight = 0;

@@ -94,10 +94,11 @@ class LogsApi implements Api {
 						},
 					],
 					'num_lines' => [
-						'default'           => null,
-						'sanitize_callback' => static function ( $value ) {
-							return $value !== null ? absint( $value ) : null;
-						},
+						'type'              => 'integer',
+						'default'           => 100,
+						'minimum'           => 1,
+						'maximum'           => Logs::MAX_LOG_LINES,
+						'sanitize_callback' => 'absint',
 					],
 				],
 			]
@@ -112,14 +113,7 @@ class LogsApi implements Api {
 	 */
 	public function get_log( $request ): WP_HTTP_Response {
 		$file      = $request->get_param( 'file' );
-		$num_lines = $request->get_param( 'num_lines' );
-
-		if ( $num_lines !== null ) {
-			$num_lines = absint( $num_lines );
-			if ( $num_lines === 0 ) {
-				return new WP_HTTP_Response( 'num_lines must be a positive integer', 400 );
-			}
-		}
+		$num_lines = (int) $request->get_param( 'num_lines' );
 
 		$content = $this->logs->get_log_content( $file, $num_lines );
 

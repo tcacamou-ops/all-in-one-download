@@ -150,7 +150,7 @@ class MovieApi implements Api {
 		} catch ( \Exception $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Error saving Movie: ' . $e->getMessage() );
-			return new WP_Error( 'error', $e->getMessage(), [ 'status' => 500 ] );
+			return new WP_Error( 'internal_error', __( 'Une erreur est survenue lors de l\'enregistrement.', 'all-in-one-download' ), [ 'status' => 500 ] );
 		}
 	}
 }

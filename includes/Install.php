@@ -13,6 +13,7 @@ use AllI1D\Models\Repositories\MovieRepository;
 use AllI1D\Crons\MediaCron;
 use AllI1D\Crons\TvShowCron;
 use AllI1D\Crons\MovieCron;
+use AllI1D\Crons\LogRotationCron;
 
 class Install {
 
@@ -25,6 +26,7 @@ class Install {
 		MediaCron::schedule_cron();
 		TvShowCron::schedule_cron();
 		MovieCron::schedule_cron();
+		LogRotationCron::schedule_cron();
 	}
 
 	/**
@@ -42,6 +44,7 @@ class Install {
 		MediaCron::unschedule_cron();
 		TvShowCron::unschedule_cron();
 		MovieCron::unschedule_cron();
+		LogRotationCron::unschedule_cron();
 	}
 
 	/**
@@ -76,6 +79,15 @@ class Install {
 				'alli1d' => true,
 				'read'   => true,
 			]
-			);
+		);
+        add_role(
+            'all-in-one-download-admin',
+            __( 'All-in-one Download Admin', 'all-in-one-download' ),
+            [
+                'alli1d' => true,
+                'alli1d_admin' => true,
+                'read'   => true,
+            ]
+        );
 	}
 }

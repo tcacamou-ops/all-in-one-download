@@ -18,12 +18,14 @@ class Logs {
 	public const SERIES_LOG = 'series.log';
 	public const FILMS_LOG  = 'films.log';
 
+	public const MAX_LOG_LINES = 5000;
+
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		add_action( 'alli1d_log', [ $this, 'log_message' ], 10, 3 );
-        add_action( 'alli1d_get_log_content', [ $this, 'get_log_content' ], 10, 2 );
+		add_action( 'alli1d_get_log_content', [ $this, 'get_log_content' ], 10, 2 );
 		$this->ensure_alli1d_directory();
 	}
 
@@ -82,42 +84,50 @@ class Logs {
 		error_log( $log_entry, 3, $destination );
 	}
 
-    /**
-     * Get the content of a log file.
-     *
-     * @param string $log_file  The log file name.
-     * @param int|null $num_lines The number of lines to retrieve from the end of the log file. If null, retrieves the entire log file.
-     * @return string The content of the log file.
-     */
-    public function get_log_content(string $log_file= self::MEDIAS_LOG, ?int $num_lines = null ): string {
-        $log_path = wp_upload_dir()['basedir'] . '/alli1d/logs/' . $log_file;
-        if ( file_exists( $log_path ) ) {
-            if ( $num_lines !== null ) {
-                $fp     = fopen( $log_path, 'rb' );
-                $buffer = '';
-                $found  = 0;
-                $pos    = filesize( $log_path );
+	/**
+	 * Get the content of a log file.
+	 *
+	 * @param string   $log_file  The log file name.
+	 * @param int|null $num_lines The number of lines to retrieve from the end of the log file. If null, retrieves the entire log file.
+	 * @return string The content of the log file.
+	 */
+	public function get_log_content( string $log_file = self::MEDIAS_LOG, ?int $num_lines = null ): string {
+		if ( null !== $num_lines ) {
+			$num_lines = min( abs( $num_lines ), self::MAX_LOG_LINES );
+		}
 
-                while ( $pos > 0 && $found <= $num_lines ) {
-                    $chunk_size = min( 4096, $pos );
-                    $pos       -= $chunk_size;
-                    fseek( $fp, $pos );
-                    $buffer = fread( $fp, $chunk_size ) . $buffer;
-                    $found  = substr_count( $buffer, "\n" );
-                }
+		$log_path = wp_upload_dir()['basedir'] . '/alli1d/logs/' . $log_file;
+		if ( file_exists( $log_path ) ) {
+			if ( null !== $num_lines ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+				$fp     = fopen( $log_path, 'rb' );
+				$buffer = '';
+				$found  = 0;
+				$pos    = filesize( $log_path );
 
-                fclose( $fp );
+				while ( $pos > 0 && $found <= $num_lines ) {
+					$chunk_size = min( 4096, $pos );
+					$pos       -= $chunk_size;
+					fseek( $fp, $pos );
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
+					$buffer = fread( $fp, $chunk_size ) . $buffer;
+					$found  = substr_count( $buffer, "\n" );
+				}
 
-                $lines = explode( "\n", $buffer );
-                // Supprimer une éventuelle ligne vide finale.
-                if ( end( $lines ) === '' ) {
-                    array_pop( $lines );
-                }
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+				fclose( $fp );
 
-                return implode( "\n", array_slice( $lines, -$num_lines ) );
-            }
-            return file_get_contents( $log_path );
-        }
-        return '';
-    }
+				$lines = explode( "\n", $buffer );
+				// Supprimer une éventuelle ligne vide finale.
+				if ( end( $lines ) === '' ) {
+					array_pop( $lines );
+				}
+
+				return implode( "\n", array_slice( $lines, -$num_lines ) );
+			}
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			return file_get_contents( $log_path );
+		}
+		return '';
+	}
 }

@@ -44,6 +44,7 @@ register_deactivation_hook( __FILE__, Install::class . '::deactivate' );
 add_action( 'alli1d_process_medias', [ 'AllI1D\Crons\MediaCron', 'process_medias' ] );
 add_action( 'alli1d_process_tv_shows', [ 'AllI1D\Crons\TvShowCron', 'process_tv_shows' ] );
 add_action( 'alli1d_process_movies', [ 'AllI1D\Crons\MovieCron', 'process_movies' ] );
+add_action( 'alli1d_rotate_logs', [ 'AllI1D\Crons\LogRotationCron', 'rotate_logs' ] );
 
 
 class Plugin {

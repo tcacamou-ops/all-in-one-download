@@ -7,6 +7,8 @@
 
 namespace AllI1D\Pages;
 
+use AllI1D\Components\ToastMessage;
+
 class Status {
 	/**
 	 * Render the status page.
@@ -17,6 +19,8 @@ class Status {
 		}
 
 		$status = apply_filters( 'alli1d_process_status', [] );
+		$modals = apply_filters( 'alli1d_provider_settings_modals', [] );
+		( new ToastMessage() )->render();
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Statut – All-in-one Download', 'all-in-one-download' ); ?></h1>
@@ -173,10 +177,16 @@ class Status {
                                 $settings_url = null;
                                 if ( is_array( $data ) && isset( $data['settings_url'] ) ) {
                                     $settings_url = esc_url( $data['settings_url'] );
-                                    unset ($data['settings_url']);
+                                    unset( $data['settings_url'] );
                                 }
-								// $settings_url = apply_filters( 'alli1d_provider_settings_url', null, $provider );
-								if ( $settings_url ) {
+								$modal_slug = 'alli1d-settings-modal-' . sanitize_title( $provider );
+								if ( isset( $modals[ $provider ] ) ) {
+									?>
+									<button type="button" class="alli1d-status-card__settings-link" data-modal="<?php echo esc_attr( $modal_slug ); ?>" title="<?php esc_attr_e( 'Paramètres', 'all-in-one-download' ); ?>">
+										<span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+									</button>
+									<?php
+								} elseif ( $settings_url ) {
 									?>
 									<a href="<?php echo esc_url( $settings_url ); ?>" class="alli1d-status-card__settings-link" title="<?php esc_attr_e( 'Paramètres', 'all-in-one-download' ); ?>">
 										<span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
@@ -205,6 +215,16 @@ class Status {
 					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
+			<?php foreach ( $modals as $provider => $modal ) : ?>
+				<?php
+				$modal_id    = 'alli1d-settings-modal-' . sanitize_title( $provider );
+				$modal_title = isset( $modal['title'] ) ? $modal['title'] : (string) $provider;
+				$modal_html  = isset( $modal['html'] ) ? $modal['html'] : '';
+				?>
+				<template id="<?php echo esc_attr( $modal_id ); ?>" data-title="<?php echo esc_attr( $modal_title ); ?>">
+					<?php echo $modal_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML provided by trusted add-on filters ?>
+				</template>
+			<?php endforeach; ?>
 		</div>
 		<?php
 	}

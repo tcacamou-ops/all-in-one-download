@@ -145,7 +145,7 @@ class TvShowApi implements Api {
 		} catch ( \Throwable $th ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Error saving TV show: ' . $th->getMessage() );
-			$retour = new WP_Error( 500, 'Error saving TV Show', 'Error saving TV show: ' . $th->getMessage() );
+			$retour = new WP_Error( 'internal_error', __( 'Une erreur est survenue lors de l\'enregistrement.', 'all-in-one-download' ), [ 'status' => 500 ] );
 			return rest_ensure_response( $retour );
 		}
 	}

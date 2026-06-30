@@ -4,6 +4,18 @@ namespace AllI1D\Models\Repositories;
 use AllI1D\Models\Movie;
 
 class MovieRepository {
+
+	private const ALLOWED_FILTER_FIELDS = [
+		'id',
+		'title',
+		'search_title',
+		'audio_format',
+		'cover_image',
+		'status',
+		'data',
+		'urls',
+	];
+
 	/**
 	 * Singleton instance.
 	 *
@@ -129,6 +141,9 @@ class MovieRepository {
 
 		// Construire les clauses WHERE en fonction des filtres.
 		foreach ( $filters as $field => [$operator, $value] ) {
+			if ( ! in_array( $field, self::ALLOWED_FILTER_FIELDS, true ) ) {
+				throw new \InvalidArgumentException( esc_html( "Invalid filter field: $field." ) );
+			}
 			if ( ! in_array( $operator, [ '=', '!=', 'LIKE' ], true ) ) {
 				throw new \InvalidArgumentException( esc_html( "Invalid operator: $operator. Allowed operators are '=', '!=', 'LIKE'." ) );
 			}

@@ -21,7 +21,7 @@ class Settings {
 			'movie_directory',
 			[
 				'type'              => 'string',
-				'sanitize_callback' => [ $this, 'sanitize_directory' ],
+				'sanitize_callback' => fn( $v ) => $this->sanitize_directory( $v, 'movie_directory' ),
 				'default'           => \AllI1D\Models\Movie::DEFAULT_DIRECTORY,
 			]
 		);
@@ -31,7 +31,7 @@ class Settings {
 			'tv_show_directory',
 			[
 				'type'              => 'string',
-				'sanitize_callback' => [ $this, 'sanitize_directory' ],
+				'sanitize_callback' => fn( $v ) => $this->sanitize_directory( $v, 'tv_show_directory' ),
 				'default'           => \AllI1D\Models\TvShow::DEFAULT_DIRECTORY,
 			]
 		);
@@ -63,12 +63,96 @@ class Settings {
 	/**
 	 * Sanitize a directory path value.
 	 *
-	 * @param mixed $value The raw value.
-	 * @return string
+	 * Resolves symlinks and .. segments via realpath(), then blocks writes to
+	 * system directories. Returns the previous saved value on any validation
+	 * failure so a rejected submission never overwrites a working configuration.
+	 *
+	 * @param mixed  $value  The raw submitted value.
+	 * @param string $option The option name being updated (e.g. 'movie_directory').
+	 * @return string Canonical absolute path, or the previous value on error.
 	 */
-	public function sanitize_directory( $value ): string {
+	private function sanitize_directory( $value, string $option ): string {
 		$value = sanitize_text_field( (string) $value );
-		return rtrim( $value, '/' );
+		$value = (string) preg_replace( '/^\s+|\s+$/u', '', $value ); // /u flag strips Unicode whitespace (U+00A0 etc.) from copy-paste.
+		$value = rtrim( $value, '/' );
+
+		$registered = get_registered_settings();
+		$default    = $registered[ $option ]['default'] ?? '';
+		$previous   = (string) get_option( $option, $default );
+		if ( '' === $previous ) {
+			$previous = $default;
+		}
+
+		if ( '' === $value ) {
+			return $previous;
+		}
+
+		// Reject relative paths — they have no defined root in this context.
+		if ( '/' !== substr( $value, 0, 1 ) ) {
+			add_settings_error(
+				$option,
+				'not_absolute',
+				__( 'Le répertoire doit être un chemin absolu.', 'all-in-one-download' )
+			);
+			return $previous;
+		}
+
+		// realpath() resolves symlinks and collapses .. segments.
+		$real = realpath( $value );
+
+		if ( false === $real ) {
+			// Directory does not exist yet: resolve parent to guard against traversal
+			// before the directory is created (e.g. /downloads/../../../etc/new).
+			$parent = realpath( dirname( $value ) );
+			if ( false === $parent ) {
+				add_settings_error(
+					$option,
+					'invalid_path',
+					__( 'Le répertoire parent n\'existe pas.', 'all-in-one-download' )
+				);
+				return $previous;
+			}
+			$real = $parent . '/' . basename( $value );
+		}
+
+		// Block writes to system and WordPress core paths.
+		foreach ( $this->get_blocked_path_prefixes() as $blocked ) {
+			if ( $real === $blocked || 0 === strpos( $real, $blocked . '/' ) ) {
+				add_settings_error(
+					$option,
+					'path_not_allowed',
+					__( 'Ce répertoire n\'est pas autorisé.', 'all-in-one-download' )
+				);
+				return $previous;
+			}
+		}
+
+		return $real;
+	}
+
+	/**
+	 * List of filesystem roots that must never be used as download directories.
+	 *
+	 * @return string[]
+	 */
+	private function get_blocked_path_prefixes(): array {
+		return [
+			'/bin',
+			'/boot',
+			'/dev',
+			'/etc',
+			'/home',
+			'/lib',
+			'/lib64',
+			'/proc',
+			'/root',
+			'/run',
+			'/sbin',
+			'/sys',
+			'/tmp',
+			'/usr',
+			'/var',
+		];
 	}
 
 	/**

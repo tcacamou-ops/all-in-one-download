@@ -1,20 +1,8 @@
 jQuery(document).ready(function ($) {
-    // On cache la baniière de base 
-    toggle_logs_banner($('#logs-status-banner').is(':hidden'));
-    
-    const $document = $(document); // Cache document lookup
-    console.log(allI1d);
-    // init events listeners
-    $document.on('click', '#media-sync-logs', media_sync_logs);
-    $document.on('click', '#tv-show-logs', tv_show_logs);
-    $document.on('click', '#movie-logs', movie_logs);
-    $document.on('click', '#toggle-logs-banner', function() {
-        toggle_logs_banner($('#logs-status-banner').is(':hidden'));
-    });
-
-    function toggle_logs_banner(show) {
+    allI1d.toggle_logs_banner = function(show) {
         const $btn = $('#toggle-logs-banner');
         if (show) {
+            allI1d.toggle_cron_banner(false);
             $('#logs-status-banner').show();
             $btn.attr('data-active', 'true');
         } else {
@@ -23,6 +11,17 @@ jQuery(document).ready(function ($) {
         }
         updateToolbarPosition();
     }
+    // On cache la baniière de base 
+    allI1d.toggle_logs_banner($('#logs-status-banner').is(':hidden'));
+    
+    const $document = $(document); // Cache document lookup
+    // init events listeners
+    $document.on('click', '#media-sync-logs', media_sync_logs);
+    $document.on('click', '#tv-show-logs', tv_show_logs);
+    $document.on('click', '#movie-logs', movie_logs);
+    $document.on('click', '#toggle-logs-banner', function() {
+        allI1d.toggle_logs_banner($('#logs-status-banner').is(':hidden'));
+    });
 
     function updateToolbarPosition() {
         let maxHeight = 0;

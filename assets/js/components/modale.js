@@ -1,4 +1,16 @@
 jQuery(document).ready(function ($) {
+
+// Ouvre une modale settings via data-modal="<template-id>"
+$(document).on('click', '[data-modal]', function () {
+    var modalId = $(this).data('modal');
+    var tmpl    = document.getElementById( modalId );
+    if ( ! tmpl ) return;
+    var title    = tmpl.getAttribute('data-title') || '';
+    var bodyHtml = tmpl.innerHTML;
+    var content  = ( title ? '<h2 style="margin:0 0 1rem">' + $('<span>').text(title).html() + '</h2>' : '' ) + bodyHtml;
+    allI1d.showModale( content );
+});
+
 // Affiche la modale avec le contenu passé en paramètre
 allI1d.showModale = function alli1dShowModal(content) {
     // Supprime une éventuelle modale déjà présente
