@@ -140,6 +140,12 @@ class MovieApi implements Api {
 			$movie            = $movie_repository->get_by_id( (int) $request->get_param( 'movieId' ) );
 			$movie->set_search_title( (string) $request->get_param( 'movieSearchTitle' ) )
 				->set_status( (string) $request->get_param( 'movieStatus' ) );
+
+			$audio_format = (string) $request->get_param( 'movieAudioFormat' );
+			if ( in_array( $audio_format, [ 'VF', 'VOSTFR' ], true ) ) {
+				$movie->set_audio_format( $audio_format );
+			}
+
 			$movie_repository->save_movie( $movie );
 			return rest_ensure_response(
 				[

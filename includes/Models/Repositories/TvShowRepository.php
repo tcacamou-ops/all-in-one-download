@@ -110,7 +110,7 @@ class TvShowRepository {
 					'urls'         => wp_json_encode( $tv_show->get_urls() ),
 				],
 				[ 'id' => $tv_show->get_id() ],
-				[ '%s', '%s', '%s', '%s', '%s', '%s' ],
+				[ '%s', '%s', '%s', '%s', '%s', '%s', '%s' ],
 				[ '%d' ]
 			);
 		} else {
@@ -127,7 +127,7 @@ class TvShowRepository {
 					'data'         => wp_json_encode( $tv_show->get_data() ),
 					'urls'         => wp_json_encode( $tv_show->get_urls() ),
 				],
-				[ '%s', '%s', '%s', '%s', '%s', '%s' ]
+				[ '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
 			);
 
 			// Mettre à jour l'ID de l'objet avec l'ID généré par la base de données.

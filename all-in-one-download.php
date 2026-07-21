@@ -84,7 +84,7 @@ class Plugin {
 	 * Initialize logs.
 	 */
 	private function initialize_logs(): void {
-		new Logs();
+		Logs::get_instance();
 	}
 }
 

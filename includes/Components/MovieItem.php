@@ -62,6 +62,14 @@ class MovieItem {
 		$html .= '</select>';
 		$html .= '</div>';
 
+		$html .= '<div class="alli1d-field">';
+		$html .= '<label>' . esc_html__( 'Langue', 'all-in-one-download' ) . '</label>';
+		$html .= '<select class="audio_format">';
+		$html .= '<option value="VF"' . selected( $this->item->get_audio_format(), 'VF', false ) . '>' . esc_html__( 'VF', 'all-in-one-download' ) . '</option>';
+		$html .= '<option value="VOSTFR"' . selected( $this->item->get_audio_format(), 'VOSTFR', false ) . '>' . esc_html__( 'VOSTFR', 'all-in-one-download' ) . '</option>';
+		$html .= '</select>';
+		$html .= '</div>';
+
 		$html .= '<button class="save-movie alli1d-save-btn">' . esc_html__( 'Sauvegarder', 'all-in-one-download' ) . '</button>';
 
 		$html .= '</div>';

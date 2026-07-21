@@ -41,7 +41,7 @@ class LogsApi implements Api {
 	 */
 	public function __construct( string $route_namespace ) {
 		$this->route_namespace = $route_namespace;
-		$this->logs            = new Logs();
+		$this->logs            = Logs::get_instance();
 		add_action( 'rest_api_init', [ $this, 'register_routes' ] );
 	}
 

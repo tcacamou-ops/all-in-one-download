@@ -21,9 +21,28 @@ class Logs {
 	public const MAX_LOG_LINES = 5000;
 
 	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
+	private static ?self $instance = null;
+
+	/**
+	 * Get the singleton instance.
+	 *
+	 * @return self
+	 */
+	public static function get_instance(): self {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
 		add_action( 'alli1d_log', [ $this, 'log_message' ], 10, 3 );
 		add_action( 'alli1d_get_log_content', [ $this, 'get_log_content' ], 10, 2 );
 		$this->ensure_alli1d_directory();

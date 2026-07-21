@@ -136,6 +136,7 @@ jQuery(document).ready(function ($) {
 
         let searchTitle = $('.search_title').val();
         let status = $('.status').val();
+        let audioFormat = $('.audio_format').val();
         let itemId = $('.item-id').val();
 
         allI1d.requestWPApi(
@@ -144,6 +145,7 @@ jQuery(document).ready(function ($) {
                 tvShowId: itemId,
                 tvShowStatus: status,
                 tvShowSearchTitle: searchTitle,
+                tvShowAudioFormat: audioFormat,
                 tvShowSeasons: seasons
             },
             function (response, data) {
@@ -164,17 +166,19 @@ jQuery(document).ready(function ($) {
 		console.log('Save Movie button clicked');
 		let searchTitle = $('.search_title').val();
 		let status = $('.status').val();
+		let audioFormat = $('.audio_format').val();
 		let itemId = $('.item-id').val();
 		console.log('Item ID:', itemId);
 		console.log('Search Title:', searchTitle);
 		console.log('Status:', status);
-		
+
 		allI1d.requestWPApi(
 			allI1d.api.routes.movie,
 			{
 				movieId: itemId,
 				movieStatus: status,
-				movieSearchTitle: searchTitle
+				movieSearchTitle: searchTitle,
+				movieAudioFormat: audioFormat
 			},
 			function (response, data) {
 				allI1d.closeModale();

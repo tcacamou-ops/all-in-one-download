@@ -135,6 +135,12 @@ class TvShowApi implements Api {
 			$tv_show->set_search_title( (string) $request->get_param( 'tvShowSearchTitle' ) )
 				->set_status( (string) $request->get_param( 'tvShowStatus' ) )
 				->set_saisons( (array) $request->get_param( 'tvShowSeasons' ) );
+
+			$audio_format = (string) $request->get_param( 'tvShowAudioFormat' );
+			if ( in_array( $audio_format, [ 'VF', 'VOSTFR' ], true ) ) {
+				$tv_show->set_audio_format( $audio_format );
+			}
+
 			$tv_show_repository->save_tv_show( $tv_show );
 			return rest_ensure_response(
 				[

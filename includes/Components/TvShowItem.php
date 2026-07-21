@@ -61,6 +61,14 @@ class TvShowItem {
 		$html .= '</select>';
 		$html .= '</div>';
 
+		$html .= '<div class="alli1d-field">';
+		$html .= '<label>' . esc_html__( 'Langue', 'all-in-one-download' ) . '</label>';
+		$html .= '<select class="audio_format">';
+		$html .= '<option value="VF"' . selected( $this->item->get_audio_format(), 'VF', false ) . '>' . esc_html__( 'VF', 'all-in-one-download' ) . '</option>';
+		$html .= '<option value="VOSTFR"' . selected( $this->item->get_audio_format(), 'VOSTFR', false ) . '>' . esc_html__( 'VOSTFR', 'all-in-one-download' ) . '</option>';
+		$html .= '</select>';
+		$html .= '</div>';
+
 		$html .= '<div class="alli1d-seasons-header">';
 		$html .= '<h2>' . esc_html__( 'Saisons', 'all-in-one-download' ) . '</h2>';
 		$html .= '<button id="add-season" class="alli1d-banner-btn">' . esc_html__( 'Ajouter une saison', 'all-in-one-download' ) . '</button>';
