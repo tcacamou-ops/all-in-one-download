@@ -40,6 +40,7 @@ return array(
     'AllI1D\\Pages\\Dashboard' => $baseDir . '/includes/Pages/Dashboard.php',
     'AllI1D\\Pages\\Settings' => $baseDir . '/includes/Pages/Settings.php',
     'AllI1D\\Pages\\Status' => $baseDir . '/includes/Pages/Status.php',
+    'AllI1D\\Services\\TorrentTitleMatcher' => $baseDir . '/includes/Services/TorrentTitleMatcher.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'honemo\\updater\\Updater' => $vendorDir . '/honemo/wp-github-updater/src/Updater.php',
 );

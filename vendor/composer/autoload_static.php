@@ -63,6 +63,7 @@ class ComposerStaticInit9c9c25b01a22dd8edfbb9134b38ad5cf
         'AllI1D\\Pages\\Dashboard' => __DIR__ . '/../..' . '/includes/Pages/Dashboard.php',
         'AllI1D\\Pages\\Settings' => __DIR__ . '/../..' . '/includes/Pages/Settings.php',
         'AllI1D\\Pages\\Status' => __DIR__ . '/../..' . '/includes/Pages/Status.php',
+        'AllI1D\\Services\\TorrentTitleMatcher' => __DIR__ . '/../..' . '/includes/Services/TorrentTitleMatcher.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'honemo\\updater\\Updater' => __DIR__ . '/..' . '/honemo/wp-github-updater/src/Updater.php',
     );

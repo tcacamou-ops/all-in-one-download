@@ -3,7 +3,7 @@
  * Plugin Name: All-in-one Download
  * Plugin URI: https://github.com/tcacamou-ops/all-in-one-download
  * Description: A professional WordPress plugin to manage and automate movie and TV show downloads.
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: tcacamou
  * Author URI: https://github.com/tcacamou-ops
  * Text Domain: all-in-one-download
@@ -16,6 +16,7 @@
 namespace AllI1D;
 
 use AllI1D\Actions\Logs;
+use AllI1D\Services\TorrentTitleMatcher;
 use honemo\updater\Updater;
 
 // Sécurité : empêcher l'accès direct au fichier.
@@ -56,6 +57,7 @@ class Plugin {
 		$this->initialize_admin();
 		$this->initialize_api();
 		$this->initialize_logs();
+		$this->initialize_services();
 	}
 
 	/**
@@ -85,6 +87,13 @@ class Plugin {
 	 */
 	private function initialize_logs(): void {
 		Logs::get_instance();
+	}
+
+	/**
+	 * Initialize core services shared with add-ons via WordPress filters.
+	 */
+	private function initialize_services(): void {
+		TorrentTitleMatcher::get_instance();
 	}
 }
 
