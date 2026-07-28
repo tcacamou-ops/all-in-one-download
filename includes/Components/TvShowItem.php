@@ -43,6 +43,10 @@ class TvShowItem {
 
 		$html .= '<div class="alli1d-item-poster">';
 		$html .= '<div class="poster-img" style="background-image: url(\'' . esc_url( $this->item->get_cover_image() ) . '\');"></div>';
+		$html .= '<label class="alli1d-cover-image-upload-label">';
+		$html .= esc_html__( 'Changer l\'image', 'all-in-one-download' );
+		$html .= '<input type="file" class="cover-image-input" accept="image/png,image/jpeg,image/webp" data-item-id="' . esc_attr( $this->item->get_id() ) . '" data-item-type="tvshow" hidden>';
+		$html .= '</label>';
 		$html .= '</div>';
 
 		$html .= '<div class="alli1d-item-form">';
@@ -99,7 +103,12 @@ class TvShowItem {
 		}
 		$html .= '</div>';
 
+		$html .= '<div class="alli1d-item-actions">';
 		$html .= '<button class="save-tv-show alli1d-save-btn">' . esc_html__( 'Sauvegarder', 'all-in-one-download' ) . '</button>';
+		$html .= '<button class="delete-fiche-btn alli1d-delete-btn" data-item-id="' . esc_attr( $this->item->get_id() ) . '" data-item-type="tvshow" title="' . esc_attr__( 'Supprimer cette fiche', 'all-in-one-download' ) . '">';
+		$html .= '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M9 3a3 3 0 0 1 6 0h5a1 1 0 1 1 0 2h-1.07l-.86 13.77A3 3 0 0 1 15.08 21H8.92a3 3 0 0 1-2.99-2.23L5.07 5H4a1 1 0 1 1 0-2h5Zm1 0a1 1 0 0 1 2 0h-2Zm7.07 2H6.93l.85 13.6a1 1 0 0 0 .99.8h6.16a1 1 0 0 0 .99-.8L17.07 5ZM9 9a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Zm3 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Z"/></svg>';
+		$html .= '</button>';
+		$html .= '</div>';
 
 		$html .= '</div>';
 		$html .= '</div>';

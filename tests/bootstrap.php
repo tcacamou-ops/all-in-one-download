@@ -11,3 +11,9 @@ if ( ! defined( 'ALLI1D_DIR' ) ) {
 if ( ! defined( 'ALLI1D_URL' ) ) {
 	define( 'ALLI1D_URL', 'http://localhost/' );
 }
+
+require_once __DIR__ . '/Support/wp-error-stub.php';
+
+if ( ! defined( 'ARRAY_A' ) ) {
+	define( 'ARRAY_A', 'ARRAY_A' );
+}

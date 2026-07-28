@@ -9,6 +9,7 @@ namespace AllI1D\Api;
 
 use AllI1D\Interfaces\Api;
 use AllI1D\Models\Repositories\MovieRepository;
+use AllI1D\Services\CoverImageUploader;
 use WP_Error;
 
 class MovieApi implements Api {
@@ -68,6 +69,29 @@ class MovieApi implements Api {
 	}
 
 	/**
+	 * Delete a movie by ID.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function delete_movie( $request ) {
+		$movie_id = (int) $request->get_param( 'movieId' );
+		if ( $movie_id <= 0 ) {
+			return new WP_Error( 'invalid_id', __( 'Identifiant invalide.', 'all-in-one-download' ), [ 'status' => 400 ] );
+		}
+
+		MovieRepository::get_instance()->delete_movie( $movie_id );
+		CoverImageUploader::delete_if_exists( 'movie', $movie_id );
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => 'Deleted successfully.',
+			]
+			);
+	}
+
+	/**
 	 * Register REST API routes.
 	 */
 	public function register_routes(): void {
@@ -86,6 +110,15 @@ class MovieApi implements Api {
 			[
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'set_movie' ],
+				'permission_callback' => [ $this, 'check_permissions' ],
+			]
+			);
+		register_rest_route(
+			$this->route_namespace,
+			$this->current_namespace,
+			[
+				'methods'             => 'DELETE',
+				'callback'            => [ $this, 'delete_movie' ],
 				'permission_callback' => [ $this, 'check_permissions' ],
 			]
 			);

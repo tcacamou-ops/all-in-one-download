@@ -321,20 +321,48 @@ class TvShow {
 	}
 
 	/**
-	 * Initialize default data structure with first saison.
+	 * Initialize default data structure with a starting saison.
 	 *
+	 * @param int $saison       The saison number to seed. Defaults to 1.
+	 * @param int $last_episode The last episode already downloaded. Defaults to 0.
 	 * @return $this
 	 */
-	public function init_data() {
+	public function init_data( int $saison = 1, int $last_episode = 0 ) {
 		$this->data = [
 			'saison' => [
 				0 => [
-					'id'          => 1,
+					'id'          => $saison,
 					'status'      => self::$actif,
-					'lastepisode' => 0,
+					'lastepisode' => $last_episode,
 				],
 			],
 		];
+		return $this;
+	}
+
+	/**
+	 * Idempotently insert a saison entry at an arbitrary index.
+	 * If the saison already exists, its state is left untouched.
+	 *
+	 * @param int $id The saison number to add.
+	 * @return $this
+	 */
+	public function add_saison( int $id ) {
+		if ( isset( $this->data['saison'] ) && is_array( $this->data['saison'] ) ) {
+			foreach ( $this->data['saison'] as $saison_data ) {
+				if ( isset( $saison_data['id'] ) && (int) $saison_data['id'] === $id ) {
+					return $this;
+				}
+			}
+		} else {
+			$this->data['saison'] = [];
+		}
+		$this->data['saison'][] = [
+			'id'          => $id,
+			'status'      => self::$actif,
+			'lastepisode' => 0,
+		];
+		$this->max_saison       = null;
 		return $this;
 	}
 

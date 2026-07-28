@@ -137,6 +137,13 @@ class Admin {
 			'1.0.0',
 			true
 		);
+		wp_enqueue_script(
+			'provider-search-modal-script',
+			ALLI1D_URL . 'assets/js/components/provider-search-modal.js',
+			[ 'jquery', 'modale-script' ],
+			'1.0.0',
+			true
+		);
 		// Localiser le script pour passer des données PHP à JavaScript.
 		$api = Api::get_instance();
 		wp_localize_script(
@@ -191,6 +198,12 @@ class Admin {
 		wp_enqueue_style(
 			'toolbar-css',
 			ALLI1D_URL . 'assets/css/components/toolbar.css',
+			[],
+			'1.0.0'
+		);
+		wp_enqueue_style(
+			'provider-search-modal-css',
+			ALLI1D_URL . 'assets/css/components/provider-search-modal.css',
 			[],
 			'1.0.0'
 		);

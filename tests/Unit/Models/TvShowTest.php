@@ -194,6 +194,53 @@ class TvShowTest extends UnitTestCase {
 		$this->assertSame( 0, $saisons[0]['lastepisode'] );
 	}
 
+	public function test_init_data_seeds_given_saison_and_episode(): void {
+		$show = new TvShow( $this->valid_attrs() );
+		$show->init_data( 3, 7 );
+		$saisons = $show->get_saisons();
+		$this->assertCount( 1, $saisons );
+		$this->assertSame( 3, $saisons[0]['id'] );
+		$this->assertSame( 'actif', $saisons[0]['status'] );
+		$this->assertSame( 7, $saisons[0]['lastepisode'] );
+	}
+
+	// -------------------------------------------------------------------------
+	// add_saison
+	// -------------------------------------------------------------------------
+
+	public function test_add_saison_inserts_new_saison(): void {
+		$show = new TvShow( $this->valid_attrs() );
+		$show->init_data();
+		$show->add_saison( 2 );
+		$saisons = $show->get_saisons();
+		$this->assertCount( 2, $saisons );
+		$this->assertSame( 2, $saisons[1]['id'] );
+		$this->assertSame( 'actif', $saisons[1]['status'] );
+		$this->assertSame( 0, $saisons[1]['lastepisode'] );
+	}
+
+	public function test_add_saison_is_idempotent_when_saison_already_exists(): void {
+		$show = new TvShow( $this->valid_attrs() );
+		$show->init_data();
+		$show->next_episode( 1, 5 );
+		$show->enable_saison( 1, false );
+
+		$show->add_saison( 1 );
+
+		$saisons = $show->get_saisons();
+		$this->assertCount( 1, $saisons );
+		$this->assertSame( 5, $saisons[0]['lastepisode'] );
+		$this->assertSame( 'inactif', $saisons[0]['status'] );
+	}
+
+	public function test_add_saison_on_empty_data_creates_saison(): void {
+		$show = new TvShow( $this->valid_attrs() );
+		$show->add_saison( 4 );
+		$saisons = $show->get_saisons();
+		$this->assertCount( 1, $saisons );
+		$this->assertSame( 4, $saisons[0]['id'] );
+	}
+
 	// -------------------------------------------------------------------------
 	// set_saisons
 	// -------------------------------------------------------------------------

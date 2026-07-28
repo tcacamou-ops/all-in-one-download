@@ -106,6 +106,62 @@ jQuery(document).ready(function ($) {
         $('#saison-' + $(this).data('saison-id')).remove();
     });
 
+    $(document).on('change', '.cover-image-input', function () {
+        let input = this;
+        let file = input.files[0];
+        if (!file) {
+            return;
+        }
+
+        let itemId = $(input).data('item-id');
+        let itemType = $(input).data('item-type');
+
+        let formData = new FormData();
+        formData.append('cover_image', file);
+        formData.append('itemId', itemId);
+        formData.append('type', itemType);
+
+        allI1d.requestWPApiUpload(
+            allI1d.api.routes.cover_image,
+            formData,
+            function (response) {
+                $(input).closest('.alli1d-item-poster').find('.poster-img').css('background-image', 'url(\'' + response.cover_image + '\')');
+                allI1d.showToast('Image mise à jour avec succès !', 'success');
+            },
+            function (request, error) {
+                allI1d.showToast('Erreur lors de la mise à jour de l\'image !', 'error');
+            }
+        );
+    });
+
+    $(document).on('click', '.delete-fiche-btn', function () {
+        if (!window.confirm('Supprimer définitivement cette fiche ?')) {
+            return;
+        }
+
+        let itemId = $(this).data('item-id');
+        let itemType = $(this).data('item-type');
+        let route = itemType === 'movie' ? allI1d.api.routes.movie : allI1d.api.routes.tvshow;
+        let idParam = itemType === 'movie' ? 'movieId' : 'tvShowId';
+
+        allI1d.requestWPApi(
+            route,
+            {
+                [idParam]: itemId
+            },
+            function (response, data) {
+                allI1d.closeModale();
+                $('.listing-item[data-id="' + itemId + '"][data-type="' + itemType + '"]').remove();
+                allI1d.showToast('Fiche supprimée avec succès !', 'success');
+            },
+            'DELETE',
+            function (request, error) {
+                allI1d.closeModale();
+                allI1d.showToast('Erreur lors de la suppression !', 'error');
+            }
+        );
+    });
+
     $(document).on('click', '.save-tv-show', function () {
         console.log('Save TV Show button clicked');
         let seasons = [];

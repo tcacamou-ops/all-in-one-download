@@ -3,6 +3,7 @@ namespace AllI1D\Api;
 
 use AllI1D\Interfaces\Api;
 use AllI1D\Models\Repositories\TvShowRepository;
+use AllI1D\Services\CoverImageUploader;
 use WP_Error;
 
 class TvShowApi implements Api {
@@ -85,6 +86,15 @@ class TvShowApi implements Api {
 			);
 		register_rest_route(
 			$this->route_namespace,
+			$this->current_namespace,
+			[
+				'methods'             => 'DELETE',
+				'callback'            => [ $this, 'delete_tv_show' ],
+				'permission_callback' => [ $this, 'check_permissions' ],
+			]
+			);
+		register_rest_route(
+			$this->route_namespace,
 			$this->current_namespace . '/cron',
 			[
 				'methods'             => 'GET',
@@ -107,6 +117,29 @@ class TvShowApi implements Api {
 			[
 				'success' => true,
 				'message' => 'Cron scheduled successfully.',
+			]
+			);
+	}
+
+	/**
+	 * Delete a TV show by ID.
+	 *
+	 * @param \WP_REST_Request $request The REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function delete_tv_show( $request ) {
+		$tv_show_id = (int) $request->get_param( 'tvShowId' );
+		if ( $tv_show_id <= 0 ) {
+			return new WP_Error( 'invalid_id', __( 'Identifiant invalide.', 'all-in-one-download' ), [ 'status' => 400 ] );
+		}
+
+		TvShowRepository::get_instance()->delete_tv_show( $tv_show_id );
+		CoverImageUploader::delete_if_exists( 'tvshow', $tv_show_id );
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => 'Deleted successfully.',
 			]
 			);
 	}
