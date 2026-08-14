@@ -30,7 +30,8 @@
         "allow-plugins": {
             "roots/wordpress-core-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        },
+        "autoloader-suffix": "3c76ba41120b5386913b7ebfa27f5328"
     },
     "scripts": {
         "phpcs": "phpcs",
