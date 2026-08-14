@@ -4,7 +4,7 @@ Tags: download, media, movies, tv-shows, automation
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: Proprietary
 License URI: 
 
@@ -101,6 +101,38 @@ The system automatically detects existing media by title and adds new URLs to ex
 5. Detailed media view with metadata
 
 == Changelog ==
+
+= 1.0.8 =
+* Added: multi-select video quality preference (any / 720p / 1080p / 2160p) per movie and TV show, with exact-set matching against parsed torrent quality
+* Added: `alli1d_torrent_matches_quality` filter in TorrentTitleMatcher for provider add-ons to consume
+* Added: quality checkboxes in the item editor and the provider search modal
+
+= 1.0.7 =
+* Added: Aggregate provider search REST endpoint (`SearchApi`) with `alli1d_search_providers` accumulator filter, capped and sorted results
+* Added: TorrentMetadataParser service for shared quality/language extraction, reusable by provider add-ons
+* Added: Search/select REST endpoint that applies a chosen provider result to a Movie or TV show fiche, with season-insert support in TvShow
+* Added: Guided provider search modal UI (multi-step criteria, results, confirm) with per-provider quality/language filters
+* Added: Ability to delete a movie/TV show fiche (REST DELETE route + confirmation UI)
+* Added: Ability to change a fiche's cover image (dedicated upload REST route and storage service)
+* Fixed: Manually selected torrent from the search modal is now actually transmitted to the download client instead of staying orphaned on disk
+* Fixed: "Suivre la série" checkbox styling aligned with the other form fields
+* Fixed: Delete button in the fiche modal now an icon-only button, aligned with Save
+
+= 1.0.6 =
+* Added: TorrentTitleMatcher service to filter torrents by title/year/season/episode
+
+= 1.0.5 =
+* Changed: Maintenance release, no functional changes
+
+= 1.0.4 =
+* Changed: Release process automation extracted into dedicated scripts (release-bump-version.sh, sync-trunk.sh)
+
+= 1.0.3 =
+* Changed: Improved release tagging process (release-tag.sh)
+
+= 1.0.2 =
+* Added: VF (French dubbed) support in movie/TV show listing and API
+* Fixed: Fixed double instantiation of Logs causing duplicate writes to log files (Logs is now a singleton)
 
 = 1.0.1 =
 * Added: Log rotation with 48h retention and daily archiving at midnight

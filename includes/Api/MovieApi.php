@@ -10,6 +10,7 @@ namespace AllI1D\Api;
 use AllI1D\Interfaces\Api;
 use AllI1D\Models\Repositories\MovieRepository;
 use AllI1D\Services\CoverImageUploader;
+use AllI1D\Services\TorrentMetadataParser;
 use WP_Error;
 
 class MovieApi implements Api {
@@ -54,6 +55,15 @@ class MovieApi implements Api {
 	 */
 	public function check_permissions(): bool {
 		return current_user_can( 'alli1d' );
+	}
+
+	/**
+	 * Check if the current user has permission to delete this resource.
+	 *
+	 * @return bool
+	 */
+	public function check_delete_permissions(): bool {
+		return current_user_can( 'alli1d_admin' );
 	}
 
 	/**
@@ -119,7 +129,7 @@ class MovieApi implements Api {
 			[
 				'methods'             => 'DELETE',
 				'callback'            => [ $this, 'delete_movie' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
+				'permission_callback' => [ $this, 'check_delete_permissions' ],
 			]
 			);
 		register_rest_route(
@@ -177,6 +187,14 @@ class MovieApi implements Api {
 			$audio_format = (string) $request->get_param( 'movieAudioFormat' );
 			if ( in_array( $audio_format, [ 'VF', 'VOSTFR' ], true ) ) {
 				$movie->set_audio_format( $audio_format );
+			}
+
+			$quality = (array) $request->get_param( 'movieQuality' );
+			if ( in_array( 'any', $quality, true ) ) {
+				$movie->set_quality( 'any' );
+			} else {
+				$quality = array_values( array_intersect( $quality, TorrentMetadataParser::SELECTABLE_QUALITIES ) );
+				$movie->set_quality( empty( $quality ) ? TorrentMetadataParser::DEFAULT_QUALITY : implode( ',', $quality ) );
 			}
 
 			$movie_repository->save_movie( $movie );

@@ -12,6 +12,7 @@ use AllI1D\Models\Movie;
 use AllI1D\Models\TvShow;
 use AllI1D\Models\Repositories\MovieRepository;
 use AllI1D\Models\Repositories\TvShowRepository;
+use AllI1D\Services\TorrentMetadataParser;
 use WP_Error;
 
 class SearchApi implements Api {
@@ -99,8 +100,84 @@ class SearchApi implements Api {
 				'methods'             => 'POST',
 				'callback'            => [ $this, 'select' ],
 				'permission_callback' => [ $this, 'check_permissions' ],
+				'args'                => $this->get_select_args(),
 			]
 			);
+	}
+
+	/**
+	 * REST argument schema for the `select` route: validates and sanitizes
+	 * the client-supplied `result` before it reaches any provider filter
+	 * (`alli1d_download_selected_result_{$provider}`), since providers build
+	 * outbound HTTP requests to third-party APIs from its `id` field.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function get_select_args(): array {
+		return [
+			'provider' => [
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_key',
+				'validate_callback' => static function ( $value ) {
+					return is_string( $value ) && '' !== sanitize_key( $value );
+				},
+			],
+			'result'   => [
+				'required'          => true,
+				'type'              => 'object',
+				'validate_callback' => static function ( $value ) {
+					if ( ! is_array( $value ) ) {
+						return false;
+					}
+					foreach ( [ 'id', 'title', 'quality' ] as $key ) {
+						if ( ! isset( $value[ $key ] ) || ! is_string( $value[ $key ] ) || '' === $value[ $key ] ) {
+							return false;
+						}
+					}
+					return true;
+				},
+				'sanitize_callback' => static function ( $value ) {
+					$value = (array) $value;
+					return [
+						'id'       => isset( $value['id'] ) ? trim( (string) $value['id'] ) : '',
+						'title'    => isset( $value['title'] ) ? sanitize_text_field( (string) $value['title'] ) : '',
+						'quality'  => isset( $value['quality'] ) ? sanitize_text_field( (string) $value['quality'] ) : '',
+						'language' => isset( $value['language'] ) ? sanitize_text_field( (string) $value['language'] ) : '',
+					];
+				},
+			],
+			'type'     => [
+				'required'          => true,
+				'type'              => 'string',
+				'enum'              => [ 'movie', 'tvshow' ],
+				'sanitize_callback' => 'sanitize_key',
+			],
+			'title'    => [
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'saison'   => [
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+			],
+			'episode'  => [
+				'type'              => 'integer',
+				'sanitize_callback' => 'absint',
+			],
+			'suivi'    => [
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			],
+			'quality'  => [
+				'type'  => 'array',
+				'items' => [
+					'type' => 'string',
+					'enum' => TorrentMetadataParser::SELECTABLE_QUALITIES,
+				],
+			],
+		];
 	}
 
 	/**
@@ -130,15 +207,25 @@ class SearchApi implements Api {
 		$items  = is_array( $results['items'] ?? null ) ? $results['items'] : [];
 		$errors = is_array( $results['errors'] ?? null ) ? $results['errors'] : [];
 
-		// Defensively re-sort by score and cap to top 10: don't fully trust
-		// each provider respected the "top 10, sorted by relevance" contract.
-		usort(
-			$items,
-			static function ( $a, $b ) {
-				return ( $b['score'] ?? 0 ) <=> ( $a['score'] ?? 0 );
-			}
-			);
-		$items = array_slice( $items, 0, 10 );
+		// Defensively re-sort by score and cap to top 10 PER PROVIDER: don't
+		// fully trust each provider respected the "top 10, sorted by
+		// relevance" contract, and don't let a high-volume provider crowd out
+		// the others in the merged list.
+		$items_by_provider = [];
+		foreach ( $items as $item ) {
+			$items_by_provider[ $item['provider'] ?? '' ][] = $item;
+		}
+
+		$items = [];
+		foreach ( $items_by_provider as $provider_items ) {
+			usort(
+				$provider_items,
+				static function ( $a, $b ) {
+					return ( $b['score'] ?? 0 ) <=> ( $a['score'] ?? 0 );
+				}
+				);
+			array_push( $items, ...array_slice( $provider_items, 0, 10 ) );
+		}
 
 		return rest_ensure_response(
 			[
@@ -157,7 +244,7 @@ class SearchApi implements Api {
 	 */
 	public function select( $request ) {
 		$provider = (string) $request->get_param( 'provider' );
-		$result   = (array) $request->get_param( 'result' );
+		$result   = (array) $request->get_param( 'result' ); // Sanitized/validated via the `select` route's `args` schema.
 		$type     = (string) $request->get_param( 'type' );
 		$title    = (string) $request->get_param( 'title' );
 		$saison   = (int) $request->get_param( 'saison' );
@@ -219,6 +306,14 @@ class SearchApi implements Api {
 			if ( '' !== $audio_format ) {
 				$movie->set_audio_format( $audio_format );
 			}
+
+			$quality = (array) $request->get_param( 'quality' );
+			if ( in_array( 'any', $quality, true ) ) {
+				$movie->set_quality( 'any' );
+			} else {
+				$quality = array_values( array_intersect( $quality, TorrentMetadataParser::SELECTABLE_QUALITIES ) );
+				$movie->set_quality( empty( $quality ) ? TorrentMetadataParser::DEFAULT_QUALITY : implode( ',', $quality ) );
+			}
 		}
 
 		$download_item['downloaded']     = false;
@@ -267,6 +362,14 @@ class SearchApi implements Api {
 			$audio_format = (string) $request->get_param( 'audio_format' );
 			if ( '' !== $audio_format ) {
 				$tv_show->set_audio_format( $audio_format );
+			}
+
+			$quality = (array) $request->get_param( 'quality' );
+			if ( in_array( 'any', $quality, true ) ) {
+				$tv_show->set_quality( 'any' );
+			} else {
+				$quality = array_values( array_intersect( $quality, TorrentMetadataParser::SELECTABLE_QUALITIES ) );
+				$tv_show->set_quality( empty( $quality ) ? TorrentMetadataParser::DEFAULT_QUALITY : implode( ',', $quality ) );
 			}
 
 			$tv_show->init_data( $saison, $episode );

@@ -7,6 +7,8 @@
 
 namespace AllI1D\Models;
 
+use AllI1D\Services\TorrentMetadataParser;
+
 class Movie {
 	/**
 	 * The movie ID, null for new objects.
@@ -37,6 +39,13 @@ class Movie {
 	private string $audio_format = '';
 
 	/**
+	 * The video quality preference, either 'any' or a CSV list of tiers.
+	 *
+	 * @var string
+	 */
+	private string $quality = '';
+
+	/**
 	 * The cover image URL.
 	 *
 	 * @var string
@@ -63,6 +72,13 @@ class Movie {
 	 * @var array<int, string>
 	 */
 	private array $urls = [];
+
+	/**
+	 * Whether a general API search has already been performed for this movie.
+	 *
+	 * @var bool
+	 */
+	private bool $general_search_done = false;
 
 	public const DEFAULT_DIRECTORY = '/downloads/Movies';
 
@@ -99,10 +115,12 @@ class Movie {
 		$this->set_title( $attributes['title'] ?? '' );
 		$this->set_search_title( $attributes['search_title'] ?? '' );
 		$this->set_audio_format( $attributes['audio_format'] ?? 'VOSTFR' );
+		$this->set_quality( $attributes['quality'] ?? TorrentMetadataParser::DEFAULT_QUALITY );
 		$this->set_cover_image( $attributes['cover_image'] ?? '' );
 		$this->set_status( $attributes['status'] ?? self::$actif );
 		$this->set_data( $attributes['data'] ?? [] );
 		$this->set_urls( $attributes['urls'] ?? [] );
+		$this->set_general_search_done( $attributes['general_search_done'] ?? false );
 	}
 
 	/**
@@ -150,6 +168,17 @@ class Movie {
 	 */
 	public function set_audio_format( string $audio_format ) {
 		$this->audio_format = sanitize_text_field( $audio_format );
+		return $this;
+	}
+
+	/**
+	 * Set the video quality preference.
+	 *
+	 * @param string $quality The quality preference ('any' or a CSV list of tiers).
+	 * @return $this
+	 */
+	public function set_quality( string $quality ) {
+		$this->quality = sanitize_text_field( $quality );
 		return $this;
 	}
 
@@ -206,6 +235,17 @@ class Movie {
 	}
 
 	/**
+	 * Set whether a general API search has already been performed.
+	 *
+	 * @param bool $general_search_done Whether the search was performed.
+	 * @return $this
+	 */
+	public function set_general_search_done( bool $general_search_done ) {
+		$this->general_search_done = $general_search_done;
+		return $this;
+	}
+
+	/**
 	 * Get the movie ID.
 	 *
 	 * @return int|null
@@ -245,6 +285,15 @@ class Movie {
 	}
 
 	/**
+	 * Get the video quality preference.
+	 *
+	 * @return string
+	 */
+	public function get_quality(): string {
+		return $this->quality;
+	}
+
+	/**
 	 * Get the cover image URL.
 	 *
 	 * @return string
@@ -278,6 +327,15 @@ class Movie {
 	 */
 	public function get_urls(): array {
 		return $this->urls;
+	}
+
+	/**
+	 * Whether a general API search has already been performed for this movie.
+	 *
+	 * @return bool
+	 */
+	public function get_general_search_done(): bool {
+		return $this->general_search_done;
 	}
 
 	/**

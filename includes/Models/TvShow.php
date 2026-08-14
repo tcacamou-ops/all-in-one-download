@@ -7,6 +7,8 @@
 
 namespace AllI1D\Models;
 
+use AllI1D\Services\TorrentMetadataParser;
+
 class TvShow {
 	/**
 	 * The TvShow ID, null for new objects.
@@ -35,6 +37,13 @@ class TvShow {
 	 * @var string
 	 */
 	private string $audio_format = '';
+
+	/**
+	 * The video quality preference, either 'any' or a CSV list of tiers.
+	 *
+	 * @var string
+	 */
+	private string $quality = '';
 
 	/**
 	 * The cover image URL.
@@ -71,6 +80,15 @@ class TvShow {
 	 */
 	private ?int $max_saison = null;
 
+	/**
+	 * Saison/episode combos for which a general API search has already been
+	 * performed, keyed as [saison_id => [episode_id => true, ...], ...]. A
+	 * combo not yet searched simply has no entry here.
+	 *
+	 * @var array<int, array<int, bool>>
+	 */
+	private array $general_search_done = [];
+
 	public const DEFAULT_DIRECTORY = '/downloads/TvShows';
 
 	private const VALID_STATUSES = [ 'actif', 'inactif', 'downloaded' ];
@@ -106,10 +124,12 @@ class TvShow {
 		$this->set_title( $attributes['title'] ?? '' );
 		$this->set_search_title( $attributes['search_title'] ?? '' );
 		$this->set_audio_format( $attributes['audio_format'] ?? 'VOSTFR' );
+		$this->set_quality( $attributes['quality'] ?? TorrentMetadataParser::DEFAULT_QUALITY );
 		$this->set_cover_image( $attributes['cover_image'] ?? '' );
 		$this->set_status( $attributes['status'] ?? self::$actif );
 		$this->set_data( $attributes['data'] ?? [] );
 		$this->set_urls( $attributes['urls'] ?? [] );
+		$this->set_general_search_done( $attributes['general_search_done'] ?? [] );
 	}
 
 	/**
@@ -157,6 +177,17 @@ class TvShow {
 	 */
 	public function set_audio_format( string $audio_format ) {
 		$this->audio_format = sanitize_text_field( $audio_format );
+		return $this;
+	}
+
+	/**
+	 * Set the video quality preference.
+	 *
+	 * @param string $quality The quality preference ('any' or a CSV list of tiers).
+	 * @return $this
+	 */
+	public function set_quality( string $quality ) {
+		$this->quality = sanitize_text_field( $quality );
 		return $this;
 	}
 
@@ -209,6 +240,39 @@ class TvShow {
 	 */
 	public function set_urls( array $urls ) {
 		$this->urls = $urls;
+		return $this;
+	}
+
+	/**
+	 * Set the full general-search-done map.
+	 *
+	 * @param array<int, array<int, bool>> $general_search_done The saison/episode map.
+	 * @return $this
+	 */
+	public function set_general_search_done( array $general_search_done ) {
+		$this->general_search_done = $general_search_done;
+		return $this;
+	}
+
+	/**
+	 * Mark whether a general API search has been performed for a given
+	 * saison/episode combo. Marking as not done removes the entry, since
+	 * absence is what signals "not yet searched".
+	 *
+	 * @param int  $saison  The saison number.
+	 * @param int  $episode The episode number.
+	 * @param bool $done    Whether the search was performed.
+	 * @return $this
+	 */
+	public function mark_general_search_done( int $saison, int $episode, bool $done = true ) {
+		if ( $done ) {
+			$this->general_search_done[ $saison ][ $episode ] = true;
+		} elseif ( isset( $this->general_search_done[ $saison ] ) ) {
+			unset( $this->general_search_done[ $saison ][ $episode ] );
+			if ( empty( $this->general_search_done[ $saison ] ) ) {
+				unset( $this->general_search_done[ $saison ] );
+			}
+		}
 		return $this;
 	}
 
@@ -267,6 +331,15 @@ class TvShow {
 	}
 
 	/**
+	 * Get the video quality preference.
+	 *
+	 * @return string
+	 */
+	public function get_quality(): string {
+		return $this->quality;
+	}
+
+	/**
 	 * Get the cover image URL.
 	 *
 	 * @return string
@@ -300,6 +373,27 @@ class TvShow {
 	 */
 	public function get_urls(): array {
 		return $this->urls;
+	}
+
+	/**
+	 * Get the full general-search-done map.
+	 *
+	 * @return array<int, array<int, bool>>
+	 */
+	public function get_general_search_done(): array {
+		return $this->general_search_done;
+	}
+
+	/**
+	 * Whether a general API search has already been performed for a given
+	 * saison/episode combo.
+	 *
+	 * @param int $saison  The saison number.
+	 * @param int $episode The episode number.
+	 * @return bool
+	 */
+	public function is_general_search_done( int $saison, int $episode ): bool {
+		return ! empty( $this->general_search_done[ $saison ][ $episode ] );
 	}
 
 	/**

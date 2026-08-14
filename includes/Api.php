@@ -8,6 +8,8 @@ use AllI1D\Api\ListingApi;
 use AllI1D\Api\LogsApi;
 use AllI1D\Api\SearchApi;
 use AllI1D\Api\CoverImageApi;
+use AllI1D\Api\FeedCatalogApi;
+use AllI1D\Api\IndexingApi;
 
 class Api {
 
@@ -75,6 +77,20 @@ class Api {
 	public CoverImageApi $cover_image_api;
 
 	/**
+	 * Feed catalog API instance.
+	 *
+	 * @var \AllI1D\Api\FeedCatalogApi
+	 */
+	public FeedCatalogApi $feed_catalog_api;
+
+	/**
+	 * Indexing API instance.
+	 *
+	 * @var \AllI1D\Api\IndexingApi
+	 */
+	public IndexingApi $indexing_api;
+
+	/**
 	 * Obtenir l'instance unique de Api.
 	 *
 	 * @return self
@@ -91,13 +107,15 @@ class Api {
 	 */
 	public function __construct() {
 		// Enregistre l'api media.
-		$this->media_api       = new MediaApi( self::$route_namespace );
-		$this->tv_show_api     = new TvShowApi( self::$route_namespace );
-		$this->movie_api       = new MovieApi( self::$route_namespace );
-		$this->listing_api     = new ListingApi( self::$route_namespace );
-		$this->logs_api        = new LogsApi( self::$route_namespace );
-		$this->search_api      = new SearchApi( self::$route_namespace );
-		$this->cover_image_api = new CoverImageApi( self::$route_namespace );
+		$this->media_api        = new MediaApi( self::$route_namespace );
+		$this->tv_show_api      = new TvShowApi( self::$route_namespace );
+		$this->movie_api        = new MovieApi( self::$route_namespace );
+		$this->listing_api      = new ListingApi( self::$route_namespace );
+		$this->logs_api         = new LogsApi( self::$route_namespace );
+		$this->search_api       = new SearchApi( self::$route_namespace );
+		$this->cover_image_api  = new CoverImageApi( self::$route_namespace );
+		$this->feed_catalog_api = new FeedCatalogApi( self::$route_namespace );
+		$this->indexing_api     = new IndexingApi( self::$route_namespace );
 	}
 
 	/**
@@ -127,6 +145,8 @@ class Api {
 		$routes = array_merge( $this->logs_api->get_routes(), $routes );
 		$routes = array_merge( $this->search_api->get_routes(), $routes );
 		$routes = array_merge( $this->cover_image_api->get_routes(), $routes );
+		$routes = array_merge( $this->feed_catalog_api->get_routes(), $routes );
+		$routes = array_merge( $this->indexing_api->get_routes(), $routes );
 		return $routes;
 	}
 }

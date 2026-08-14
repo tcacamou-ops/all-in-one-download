@@ -26,16 +26,24 @@ class ListingContainer {
 	 * @var string
 	 */
 	private string $movie_checked = '';
+	/**
+	 * Provider search modal toggle button, rendered next to the search input.
+	 *
+	 * @var ProviderSearchModal|null
+	 */
+	private ?ProviderSearchModal $provider_search_modal = null;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param string $type   The listing type.
-	 * @param string $search The search query.
+	 * @param string                    $type                   The listing type.
+	 * @param string                    $search                 The search query.
+	 * @param ProviderSearchModal|null  $provider_search_modal  Toggle button to render next to the search input.
 	 */
-	public function __construct( $type = 'tvshow', $search = '' ) {
-		$this->type   = $type;
-		$this->search = $search;
+	public function __construct( $type = 'tvshow', $search = '', ?ProviderSearchModal $provider_search_modal = null ) {
+		$this->type                  = $type;
+		$this->search                = $search;
+		$this->provider_search_modal = $provider_search_modal;
 		if ( 'movie' === $this->type ) {
 			$this->tv_checked    = '';
 			$this->movie_checked = 'checked';
@@ -52,9 +60,17 @@ class ListingContainer {
 	 */
 	public function render( $render = true ) {
 		$listing = new Listing( $this->type, $this->search );
-		$html    = '<div class="px-40 flex flex-1 justify-center py-5">
+
+		$provider_search_toggle = '';
+		if ( null !== $this->provider_search_modal ) {
+			ob_start();
+			$this->provider_search_modal->render_toggle();
+			$provider_search_toggle = ob_get_clean();
+		}
+
+		$html = '<div class="px-40 flex flex-1 justify-center py-5">
           <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-            <div class="px-4 py-3">
+            <div class="px-4 py-3 flex items-center gap-3">
               <label class="flex flex-col min-w-40 h-12 w-full">
                 <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
                   <div class="text-[#757575] flex border-none bg-[#f2f2f2] items-center justify-center pl-4 rounded-l-xl border-r-0" data-icon="MagnifyingGlass" data-size="24px" data-weight="regular">
@@ -62,9 +78,10 @@ class ListingContainer {
                       <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
                     </svg>
                   </div>
-                  <input placeholder="Rechercher des médias" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#141414] focus:outline-0 focus:ring-0 border-none bg-[#f2f2f2] focus:border-none h-full placeholder:text-[#757575] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" value="' . $this->search . '" id="search-input">
+                  <input placeholder="Rechercher des médias" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#141414] focus:outline-0 focus:ring-0 border-none bg-[#f2f2f2] focus:border-none h-full placeholder:text-[#757575] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" value="' . esc_attr( $this->search ) . '" id="search-input">
                 </div>
               </label>
+              <div class="alli1d-search-toggle">' . $provider_search_toggle . '</div>
             </div>
             <div class="flex px-4 py-3">
               <div class="flex h-10 flex-1 items-center justify-center rounded-xl bg-[#f2f2f2] p-1">

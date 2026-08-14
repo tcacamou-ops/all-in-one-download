@@ -2,6 +2,7 @@
 namespace AllI1D\Models\Repositories;
 
 use AllI1D\Models\Movie;
+use AllI1D\Services\TorrentMetadataParser;
 
 class MovieRepository {
 
@@ -10,10 +11,12 @@ class MovieRepository {
 		'title',
 		'search_title',
 		'audio_format',
+		'quality',
 		'cover_image',
 		'status',
 		'data',
 		'urls',
+		'general_search_done',
 	];
 
 	/**
@@ -53,15 +56,18 @@ class MovieRepository {
 	public function create_table(): void {
 		global $wpdb;
 		$charset_collate = $wpdb->get_charset_collate();
+		$default_quality = TorrentMetadataParser::DEFAULT_QUALITY;
 		$sql             = "CREATE TABLE {$this->table_name} (
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             title VARCHAR(255) NOT NULL,
             search_title VARCHAR(255) NOT NULL,
             audio_format VARCHAR(50) NOT NULL,
+            quality VARCHAR(20) NOT NULL DEFAULT '{$default_quality}',
             cover_image VARCHAR(255) NOT NULL,
             status VARCHAR(50) NOT NULL,
             data LONGTEXT NOT NULL,
             urls LONGTEXT NOT NULL,
+            general_search_done TINYINT(1) NOT NULL DEFAULT 0,
             PRIMARY KEY (id)
         ) $charset_collate;";
 
@@ -92,16 +98,18 @@ class MovieRepository {
 			$wpdb->update(
 				$this->table_name,
 				[
-					'title'        => $movie->get_title(),
-					'search_title' => $movie->get_search_title(),
-					'audio_format' => $movie->get_audio_format(),
-					'cover_image'  => $movie->get_cover_image(),
-					'status'       => $movie->get_status(),
-					'data'         => wp_json_encode( $movie->get_data() ),
-					'urls'         => wp_json_encode( $movie->get_urls() ),
+					'title'               => $movie->get_title(),
+					'search_title'        => $movie->get_search_title(),
+					'audio_format'        => $movie->get_audio_format(),
+					'quality'             => $movie->get_quality(),
+					'cover_image'         => $movie->get_cover_image(),
+					'status'              => $movie->get_status(),
+					'data'                => wp_json_encode( $movie->get_data() ),
+					'urls'                => wp_json_encode( $movie->get_urls() ),
+					'general_search_done' => (int) $movie->get_general_search_done(),
 				],
 				[ 'id' => $movie->get_id() ],
-				[ '%s', '%s', '%s', '%s', '%s', '%s', '%s' ],
+				[ '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ],
 				[ '%d' ]
 			);
 		} else {
@@ -110,15 +118,17 @@ class MovieRepository {
 			$wpdb->insert(
 				$this->table_name,
 				[
-					'title'        => $movie->get_title(),
-					'search_title' => $movie->get_search_title(),
-					'audio_format' => $movie->get_audio_format(),
-					'cover_image'  => $movie->get_cover_image(),
-					'status'       => $movie->get_status(),
-					'data'         => wp_json_encode( $movie->get_data() ),
-					'urls'         => wp_json_encode( $movie->get_urls() ),
+					'title'               => $movie->get_title(),
+					'search_title'        => $movie->get_search_title(),
+					'audio_format'        => $movie->get_audio_format(),
+					'quality'             => $movie->get_quality(),
+					'cover_image'         => $movie->get_cover_image(),
+					'status'              => $movie->get_status(),
+					'data'                => wp_json_encode( $movie->get_data() ),
+					'urls'                => wp_json_encode( $movie->get_urls() ),
+					'general_search_done' => (int) $movie->get_general_search_done(),
 				],
-				[ '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+				[ '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d' ]
 			);
 
 			// Mettre à jour l'ID de l'objet.
@@ -170,14 +180,16 @@ class MovieRepository {
 			function ( $row ) {
 				return new Movie(
 				[
-					'id'           => (int) $row['id'],
-					'title'        => $row['title'],
-					'search_title' => $row['search_title'],
-					'audio_format' => $row['audio_format'],
-					'cover_image'  => $row['cover_image'],
-					'status'       => $row['status'],
-					'data'         => json_decode( $row['data'], true ),
-					'urls'         => json_decode( $row['urls'], true ),
+					'id'                  => (int) $row['id'],
+					'title'               => $row['title'],
+					'search_title'        => $row['search_title'],
+					'audio_format'        => $row['audio_format'],
+					'quality'             => $row['quality'] ?? TorrentMetadataParser::DEFAULT_QUALITY,
+					'cover_image'         => $row['cover_image'],
+					'status'              => $row['status'],
+					'data'                => json_decode( $row['data'], true ),
+					'urls'                => json_decode( $row['urls'], true ),
+					'general_search_done' => ! empty( $row['general_search_done'] ),
 				]
 				);
 			},
@@ -199,14 +211,16 @@ class MovieRepository {
 		if ( $result ) {
 			return new Movie(
 				[
-					'id'           => (int) $result['id'],
-					'title'        => $result['title'],
-					'search_title' => $result['search_title'],
-					'audio_format' => $result['audio_format'],
-					'cover_image'  => $result['cover_image'],
-					'status'       => $result['status'],
-					'data'         => json_decode( $result['data'], true ),
-					'urls'         => json_decode( $result['urls'], true ),
+					'id'                  => (int) $result['id'],
+					'title'               => $result['title'],
+					'search_title'        => $result['search_title'],
+					'audio_format'        => $result['audio_format'],
+					'quality'             => $result['quality'] ?? TorrentMetadataParser::DEFAULT_QUALITY,
+					'cover_image'         => $result['cover_image'],
+					'status'              => $result['status'],
+					'data'                => json_decode( $result['data'], true ),
+					'urls'                => json_decode( $result['urls'], true ),
+					'general_search_done' => ! empty( $result['general_search_done'] ),
 				]
 				);
 		}
@@ -223,5 +237,16 @@ class MovieRepository {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->delete( $this->table_name, [ 'id' => $id ], [ '%d' ] );
+	}
+
+	/**
+	 * Remettre `general_search_done` à false pour tous les films.
+	 *
+	 * @return int Le nombre de lignes affectées.
+	 */
+	public function reset_all_general_search_done(): int {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (int) $wpdb->query( "UPDATE {$this->table_name} SET general_search_done = 0" );
 	}
 }

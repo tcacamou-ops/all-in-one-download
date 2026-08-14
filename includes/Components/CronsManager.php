@@ -42,6 +42,10 @@ class CronsManager {
 		echo '<span class="banner-label">' . esc_html__( 'Téléchargement des Films', 'all-in-one-download' ) . '</span>';
 		echo '<button id="movie-cron" class="alli1d-banner-btn">' . esc_html__( 'Lancer le cron', 'all-in-one-download' ) . '</button>';
 		echo '</div>';
+		echo '<div class="banner-item">';
+		echo '<span class="banner-label">' . esc_html__( 'Indexation du catalogue', 'all-in-one-download' ) . '</span>';
+		echo '<button id="feed-catalog-cron" class="alli1d-banner-btn">' . esc_html__( 'Lancer le cron', 'all-in-one-download' ) . '</button>';
+		echo '</div>';
 		echo '</div>';
 	}
 

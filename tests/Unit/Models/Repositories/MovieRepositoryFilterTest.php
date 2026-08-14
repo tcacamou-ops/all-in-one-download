@@ -32,7 +32,7 @@ class MovieRepositoryFilterTest extends UnitTestCase {
 	}
 
 	public function test_get_all_movies_accepts_all_whitelisted_fields(): void {
-		$whitelisted = [ 'id', 'title', 'search_title', 'audio_format', 'cover_image', 'status', 'data', 'urls' ];
+		$whitelisted = [ 'id', 'title', 'search_title', 'audio_format', 'quality', 'cover_image', 'status', 'data', 'urls' ];
 		foreach ( $whitelisted as $field ) {
 			// Reset singleton for each iteration.
 			$ref = new \ReflectionProperty( MovieRepository::class, 'instance' );

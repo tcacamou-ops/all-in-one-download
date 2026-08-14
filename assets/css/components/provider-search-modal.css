@@ -43,6 +43,58 @@
     cursor: pointer;
 }
 
+/* Qualité (checkbox group) — same override as modale.css: the generic
+   .alli1d-field input/label rules are shaped for a single text/select field
+   and otherwise stretch each checkbox to a blank 48px-tall box. */
+.quality-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quality-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    height: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 0;
+    color: #141414;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.quality-group label:hover {
+    border-color: #141414;
+}
+
+.quality-group input[type="checkbox"] {
+    appearance: auto;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    accent-color: #141414;
+    cursor: pointer;
+}
+
+.quality-group input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+}
+
+.quality-group label:has(input:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .alli1d-search-loading,
 .alli1d-search-empty {
     color: #757575;

@@ -61,6 +61,26 @@ class TorrentTitleMatcher {
 		'hdtv',
 		'hdlight',
 		'remux',
+		'hdr',
+		'hdr10',
+		'hdr10plus',
+		'dv',
+		'sdr',
+		'10bit',
+		'10bits',
+		'8bit',
+		'8bits',
+		'av1',
+		'ac3',
+		'aac',
+		'eac3',
+		'ddp',
+		'ddp5',
+		'dts',
+		'dtshd',
+		'truehd',
+		'atmos',
+		'flac',
 	];
 
 	/**
@@ -80,6 +100,14 @@ class TorrentTitleMatcher {
 	private static ?self $instance = null;
 
 	/**
+	 * Quality tag normalizer, shared with the REST/UI layer so the matching
+	 * filter and the selectable-preference validation stay in sync.
+	 *
+	 * @var TorrentMetadataParser
+	 */
+	private TorrentMetadataParser $metadata_parser;
+
+	/**
 	 * Get the singleton instance.
 	 *
 	 * @return self
@@ -92,10 +120,13 @@ class TorrentTitleMatcher {
 	}
 
 	/**
-	 * Constructor. Registers the matching filter and the rejection logger.
+	 * Constructor. Registers the matching filters and the rejection logger.
 	 */
 	private function __construct() {
+		$this->metadata_parser = new TorrentMetadataParser();
+
 		add_filter( 'alli1d_torrent_matches_title', [ $this, 'matches' ], 10, 2 );
+		add_filter( 'alli1d_torrent_matches_quality', [ $this, 'matches_quality' ], 10, 2 );
 		add_action( 'alli1d_torrent_rejected', [ $this, 'log_rejection' ], 10, 1 );
 	}
 
@@ -122,21 +153,24 @@ class TorrentTitleMatcher {
 			return true;
 		}
 
+		// A TV show context carries a season and/or episode; movies don't.
+		$destination = ( null !== $saison || null !== $episode ) ? Logs::SERIES_LOG : Logs::FILMS_LOG;
+
 		if ( ! $this->title_matches( $title, $torrent_name ) ) {
-			$this->reject( $torrent_name, $title, 'title_mismatch' );
+			$this->reject( $torrent_name, $title, 'title_mismatch', $destination );
 			return false;
 		}
 
 		if ( null !== $saison || null !== $episode ) {
 			if ( ! $this->season_episode_matches( $torrent_name, $saison, $episode ) ) {
-				$this->reject( $torrent_name, $title, 'season_episode_mismatch' );
+				$this->reject( $torrent_name, $title, 'season_episode_mismatch', $destination );
 				return false;
 			}
 		}
 
 		if ( null !== $year ) {
 			if ( ! $this->year_matches( $torrent_name, $year ) ) {
-				$this->reject( $torrent_name, $title, 'year_mismatch' );
+				$this->reject( $torrent_name, $title, 'year_mismatch', $destination );
 				return false;
 			}
 		}
@@ -145,14 +179,53 @@ class TorrentTitleMatcher {
 	}
 
 	/**
-	 * Compare the requested title against the torrent name using a similarity
-	 * percentage. Both strings are normalized first (accents stripped, noise
-	 * tags/year removed, lowercased). `similar_text()` is used directly on
-	 * the two normalized strings rather than trying to locate the "closest"
-	 * substring: normalization already removes the release-group/quality
-	 * noise that would otherwise pad the torrent name, so a direct percentage
-	 * comparison is both simpler and reliable enough for the 65% default
-	 * threshold.
+	 * Filter callback for `alli1d_torrent_matches_quality`. Compares the
+	 * candidate torrent's quality tag against a user preference by exact-set
+	 * membership (not a `>=` tier comparison — see the video quality
+	 * preference spec for why multi-select requires this).
+	 *
+	 * @param bool                                                                                                                       $is_match Current match state (default true).
+	 * @param array{torrent_quality?: string|null, preference?: string, torrent_name?: string, title?: string, log_destination?: string} $context Match context.
+	 * @return bool
+	 */
+	public function matches_quality( $is_match, array $context ): bool {
+		// Respect an already-negative verdict from an earlier filter callback.
+		if ( false === $is_match ) {
+			return false;
+		}
+
+		$preference = (string) ( $context['preference'] ?? 'any' );
+
+		if ( 'any' === $preference || '' === $preference ) {
+			return true;
+		}
+
+		$selected       = explode( ',', $preference );
+		$candidate_tier = $this->metadata_parser->normalize_quality( $context['torrent_quality'] ?? null );
+
+		if ( null === $candidate_tier || ! in_array( $candidate_tier, $selected, true ) ) {
+			$this->reject(
+				(string) ( $context['torrent_name'] ?? ( $context['torrent_quality'] ?? '' ) ),
+				(string) ( $context['title'] ?? '' ),
+				'quality_mismatch',
+				(string) ( $context['log_destination'] ?? Logs::FILMS_LOG )
+			);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Compare the requested title against the torrent name. Both strings are
+	 * normalized first (accents stripped, noise tags/year removed,
+	 * lowercased). A normalized torrent name that starts with the normalized
+	 * title is always accepted: normalization can't strip every possible
+	 * release-group name, and a short title (e.g. "Silo") followed by an
+	 * unrecognized trailing token would otherwise fail the similarity
+	 * threshold even though the title itself matches exactly. Anything else
+	 * falls back to a `similar_text()` percentage comparison, to still catch
+	 * near-miss spellings.
 	 *
 	 * @param string $title        Requested title.
 	 * @param string $torrent_name Raw torrent name.
@@ -163,6 +236,10 @@ class TorrentTitleMatcher {
 		$normalized_torrent = $this->normalize_torrent_name( $torrent_name );
 
 		if ( '' === $normalized_title || '' === $normalized_torrent ) {
+			return true;
+		}
+
+		if ( $normalized_title === $normalized_torrent || 0 === strpos( $normalized_torrent, $normalized_title . ' ' ) ) {
 			return true;
 		}
 
@@ -214,6 +291,10 @@ class TorrentTitleMatcher {
 		$normalized = (string) preg_replace( '/\bsaison\s*\d{1,2}\b/i', ' ', $normalized );
 		$normalized = (string) preg_replace( '/\bseason\s*\d{1,2}\b/i', ' ', $normalized );
 		$normalized = (string) preg_replace( '/\bs\d{1,2}\b/i', ' ', $normalized );
+
+		// Remove audio channel layouts (e.g. "5.1", "7.1", "2.0") before they get
+		// split into stray standalone digits by whitespace collapsing.
+		$normalized = (string) preg_replace( '/\b\d\.\d\b/', ' ', $normalized );
 
 		// Remove noise tags (word-boundary based, case-insensitive since already lowercased).
 		foreach ( self::NOISE_TAGS as $tag ) {
@@ -341,30 +422,34 @@ class TorrentTitleMatcher {
 	 * @param string $torrent_name Raw torrent name.
 	 * @param string $title        Requested title.
 	 * @param string $reason       Short rejection reason code.
+	 * @param string $destination  Log file to write to (Logs::FILMS_LOG or Logs::SERIES_LOG).
 	 */
-	private function reject( string $torrent_name, string $title, string $reason ): void {
+	private function reject( string $torrent_name, string $title, string $reason, string $destination ): void {
 		do_action(
 			'alli1d_torrent_rejected',
 			[
-				'torrent_name' => $torrent_name,
-				'title'        => $title,
-				'reason'       => $reason,
+				'torrent_name'    => $torrent_name,
+				'title'           => $title,
+				'reason'          => $reason,
+				'log_destination' => $destination,
 			]
 		);
 	}
 
 	/**
 	 * Action callback for `alli1d_torrent_rejected`: writes a log line to the
-	 * films or series log, based on whichever context fields are present.
+	 * films or series log. Callers that don't provide an explicit
+	 * `log_destination` fall back to guessing from the reason, for backward
+	 * compatibility with callers that fire this action directly.
 	 *
-	 * @param array{torrent_name?: string, title?: string, reason?: string} $context Rejection context.
+	 * @param array{torrent_name?: string, title?: string, reason?: string, log_destination?: string} $context Rejection context.
 	 */
 	public function log_rejection( array $context ): void {
 		$torrent_name = (string) ( $context['torrent_name'] ?? '' );
 		$title        = (string) ( $context['title'] ?? '' );
 		$reason       = (string) ( $context['reason'] ?? 'unknown' );
 
-		$destination = 'season_episode_mismatch' === $reason ? Logs::SERIES_LOG : Logs::FILMS_LOG;
+		$destination = (string) ( $context['log_destination'] ?? ( 'season_episode_mismatch' === $reason ? Logs::SERIES_LOG : Logs::FILMS_LOG ) );
 
 		$message = sprintf(
 			'Torrent rejected [%s] - title: "%s" - torrent: "%s"',

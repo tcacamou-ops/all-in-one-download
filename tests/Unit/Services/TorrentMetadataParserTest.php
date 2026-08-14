@@ -38,6 +38,37 @@ class TorrentMetadataParserTest extends UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// normalize_quality
+	// -------------------------------------------------------------------------
+
+	public function test_normalize_quality_returns_tier_unchanged(): void {
+		$this->assertSame( '1080p', $this->parser->normalize_quality( '1080p' ) );
+		$this->assertSame( '720p', $this->parser->normalize_quality( '720p' ) );
+		$this->assertSame( '2160p', $this->parser->normalize_quality( '2160p' ) );
+	}
+
+	public function test_normalize_quality_aliases_4k_to_2160p(): void {
+		$this->assertSame( '2160p', $this->parser->normalize_quality( '4k' ) );
+		$this->assertSame( '2160p', $this->parser->normalize_quality( '4K' ) );
+	}
+
+	public function test_normalize_quality_returns_null_for_480p(): void {
+		$this->assertNull( $this->parser->normalize_quality( '480p' ) );
+	}
+
+	public function test_normalize_quality_returns_null_for_unrecognized_value(): void {
+		$this->assertNull( $this->parser->normalize_quality( 'potato-vision' ) );
+	}
+
+	public function test_normalize_quality_returns_null_for_null(): void {
+		$this->assertNull( $this->parser->normalize_quality( null ) );
+	}
+
+	public function test_normalize_quality_returns_null_for_empty_string(): void {
+		$this->assertNull( $this->parser->normalize_quality( '' ) );
+	}
+
+	// -------------------------------------------------------------------------
 	// extract_language
 	// -------------------------------------------------------------------------
 

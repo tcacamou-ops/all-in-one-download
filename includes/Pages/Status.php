@@ -25,6 +25,12 @@ class Status {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Statut – All-in-one Download', 'all-in-one-download' ); ?></h1>
 
+			<div class="alli1d-status-actions" style="margin: 12px 0;">
+				<button type="button" id="reset-indexing-button" class="button button-secondary">
+					<?php esc_html_e( 'Réinitialiser l\'indexation', 'all-in-one-download' ); ?>
+				</button>
+			</div>
+
 			<style>
 				.alli1d-status-grid {
 					display: grid;

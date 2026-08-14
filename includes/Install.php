@@ -10,12 +10,21 @@ namespace AllI1D;
 use AllI1D\Models\Repositories\MediaRepository;
 use AllI1D\Models\Repositories\TvShowRepository;
 use AllI1D\Models\Repositories\MovieRepository;
+use AllI1D\Models\Repositories\FeedCatalogRepository;
 use AllI1D\Crons\MediaCron;
 use AllI1D\Crons\TvShowCron;
 use AllI1D\Crons\MovieCron;
 use AllI1D\Crons\LogRotationCron;
+use AllI1D\Crons\FeedCatalogRefreshCron;
+use AllI1D\Crons\FeedCatalogPurgeCron;
 
 class Install {
+
+	/**
+	 * Current database schema version. Bump this and re-run create_table()
+	 * via maybe_upgrade() whenever a table definition changes.
+	 */
+	private const DB_VERSION = '1.1.2';
 
 	/**
 	 * Run plugin activation tasks.
@@ -23,10 +32,26 @@ class Install {
 	public static function activate(): void {
 		self::create_table();
 		self::add_roles();
+		update_option( 'alli1d_db_version', self::DB_VERSION );
 		MediaCron::schedule_cron();
 		TvShowCron::schedule_cron();
 		MovieCron::schedule_cron();
 		LogRotationCron::schedule_cron();
+		FeedCatalogRefreshCron::schedule_cron();
+		FeedCatalogPurgeCron::schedule_cron();
+	}
+
+	/**
+	 * Re-run the (idempotent) table creation when the plugin has been
+	 * updated to a version with a newer schema, without requiring
+	 * deactivation/reactivation.
+	 */
+	public static function maybe_upgrade(): void {
+		if ( get_option( 'alli1d_db_version' ) === self::DB_VERSION ) {
+			return;
+		}
+		self::create_table();
+		update_option( 'alli1d_db_version', self::DB_VERSION );
 	}
 
 	/**
@@ -41,10 +66,15 @@ class Install {
 
 		$tv_show_repository = TvShowRepository::get_instance();
 		// $tv_show_repository->drop_table();
+
+		$feed_catalog_repository = FeedCatalogRepository::get_instance();
+		// $feed_catalog_repository->drop_table();
 		MediaCron::unschedule_cron();
 		TvShowCron::unschedule_cron();
 		MovieCron::unschedule_cron();
 		LogRotationCron::unschedule_cron();
+		FeedCatalogRefreshCron::unschedule_cron();
+		FeedCatalogPurgeCron::unschedule_cron();
 	}
 
 	/**
@@ -59,6 +89,9 @@ class Install {
 
 		$tv_show_repository = TvShowRepository::get_instance();
 		$tv_show_repository->create_table();
+
+		$feed_catalog_repository = FeedCatalogRepository::get_instance();
+		$feed_catalog_repository->create_table();
 	}
 
 	/**
@@ -80,14 +113,14 @@ class Install {
 				'read'   => true,
 			]
 		);
-        add_role(
-            'all-in-one-download-admin',
-            __( 'All-in-one Download Admin', 'all-in-one-download' ),
-            [
-                'alli1d' => true,
-                'alli1d_admin' => true,
-                'read'   => true,
-            ]
-        );
+		add_role(
+			'all-in-one-download-admin',
+			__( 'All-in-one Download Admin', 'all-in-one-download' ),
+			[
+				'alli1d'       => true,
+				'alli1d_admin' => true,
+				'read'         => true,
+			]
+		);
 	}
 }

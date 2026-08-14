@@ -3,7 +3,7 @@
  * Plugin Name: All-in-one Download
  * Plugin URI: https://github.com/tcacamou-ops/all-in-one-download
  * Description: A professional WordPress plugin to manage and automate movie and TV show downloads.
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: tcacamou
  * Author URI: https://github.com/tcacamou-ops
  * Text Domain: all-in-one-download
@@ -37,15 +37,35 @@ if ( ! defined( 'ALLI1D_URL' ) ) {
 // Inclure l'autoloader de Composer.
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
+// Inclure le point d'entrée générique du catalogue indexé de flux/API providers.
+require_once plugin_dir_path( __FILE__ ) . 'includes/feed-catalog-functions.php';
+
 // Hook d'activation et désactivation.
 register_activation_hook( __FILE__, Install::class . '::activate' );
 register_deactivation_hook( __FILE__, Install::class . '::deactivate' );
+
+// Mettre à jour le schéma de la base de données si nécessaire (mise à jour du plugin sans réactivation).
+add_action( 'plugins_loaded', Install::class . '::maybe_upgrade' );
 
 // Hook scheduled events.
 add_action( 'alli1d_process_medias', [ 'AllI1D\Crons\MediaCron', 'process_medias' ] );
 add_action( 'alli1d_process_tv_shows', [ 'AllI1D\Crons\TvShowCron', 'process_tv_shows' ] );
 add_action( 'alli1d_process_movies', [ 'AllI1D\Crons\MovieCron', 'process_movies' ] );
 add_action( 'alli1d_rotate_logs', [ 'AllI1D\Crons\LogRotationCron', 'rotate_logs' ] );
+add_action( 'alli1d_purge_feed_catalog', [ 'AllI1D\Crons\FeedCatalogPurgeCron', 'purge_feed_catalog' ] );
+// Pas de handler du core sur `alli1d_refresh_feed_catalog` : c'est une action
+// broadcast (comme `alli1d_process_movie`/`alli1d_search_providers`), câblée
+// à un cron via `FeedCatalogRefreshCron::schedule_cron()`. Chaque add-on
+// provider actif s'enregistre directement dessus.
+
+// Statut du catalogue indexé de flux/API providers, affiché sur la page Statut.
+add_filter( 'alli1d_process_status', [ 'AllI1D\Filters\FeedCatalogStatus', 'process_status' ] );
+add_filter( 'alli1d_provider_settings_modals', [ 'AllI1D\Filters\FeedCatalogStatus', 'register_modal' ] );
+
+// Commande WP-CLI de gestion du catalogue indexé de flux/API providers.
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	\WP_CLI::add_command( 'alli1d feed-catalog', \AllI1D\Cli\FeedCatalogCommand::class );
+}
 
 
 class Plugin {

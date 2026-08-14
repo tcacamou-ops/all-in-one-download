@@ -4,6 +4,7 @@ namespace AllI1D\Api;
 use AllI1D\Interfaces\Api;
 use AllI1D\Models\Repositories\TvShowRepository;
 use AllI1D\Services\CoverImageUploader;
+use AllI1D\Services\TorrentMetadataParser;
 use WP_Error;
 
 class TvShowApi implements Api {
@@ -51,6 +52,15 @@ class TvShowApi implements Api {
 	}
 
 	/**
+	 * Check if the current user has permission to delete this resource.
+	 *
+	 * @return bool
+	 */
+	public function check_delete_permissions(): bool {
+		return current_user_can( 'alli1d_admin' );
+	}
+
+	/**
 	 * Get routes.
 	 *
 	 * @return array<string, string>
@@ -90,7 +100,7 @@ class TvShowApi implements Api {
 			[
 				'methods'             => 'DELETE',
 				'callback'            => [ $this, 'delete_tv_show' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
+				'permission_callback' => [ $this, 'check_delete_permissions' ],
 			]
 			);
 		register_rest_route(
@@ -172,6 +182,14 @@ class TvShowApi implements Api {
 			$audio_format = (string) $request->get_param( 'tvShowAudioFormat' );
 			if ( in_array( $audio_format, [ 'VF', 'VOSTFR' ], true ) ) {
 				$tv_show->set_audio_format( $audio_format );
+			}
+
+			$quality = (array) $request->get_param( 'tvShowQuality' );
+			if ( in_array( 'any', $quality, true ) ) {
+				$tv_show->set_quality( 'any' );
+			} else {
+				$quality = array_values( array_intersect( $quality, TorrentMetadataParser::SELECTABLE_QUALITIES ) );
+				$tv_show->set_quality( empty( $quality ) ? TorrentMetadataParser::DEFAULT_QUALITY : implode( ',', $quality ) );
 			}
 
 			$tv_show_repository->save_tv_show( $tv_show );

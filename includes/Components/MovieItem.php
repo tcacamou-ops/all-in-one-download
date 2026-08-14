@@ -9,6 +9,7 @@ namespace AllI1D\Components;
 
 use AllI1D\Models\Repositories\MovieRepository;
 use AllI1D\Models\Movie;
+use AllI1D\Services\TorrentMetadataParser;
 
 class MovieItem {
 	/**
@@ -74,11 +75,34 @@ class MovieItem {
 		$html .= '</select>';
 		$html .= '</div>';
 
+		$quality        = $this->item->get_quality();
+		$is_any_quality = ( 'any' === $quality || '' === $quality );
+		$selected_tiers = $is_any_quality ? [] : explode( ',', $quality );
+		$quality_labels = [
+			'720p'  => __( 'HD (720p)', 'all-in-one-download' ),
+			'1080p' => __( '1080p', 'all-in-one-download' ),
+			'2160p' => __( '4K (2160p)', 'all-in-one-download' ),
+		];
+
+		$html .= '<div class="alli1d-field">';
+		$html .= '<label>' . esc_html__( 'Qualité', 'all-in-one-download' ) . '</label>';
+		$html .= '<div class="quality-group">';
+		foreach ( TorrentMetadataParser::SELECTABLE_QUALITIES as $tier ) {
+			$checked  = in_array( $tier, $selected_tiers, true ) ? ' checked' : '';
+			$disabled = $is_any_quality ? ' disabled' : '';
+			$html    .= '<label><input type="checkbox" class="quality-tier" value="' . esc_attr( $tier ) . '"' . $checked . $disabled . '> ' . esc_html( $quality_labels[ $tier ] ) . '</label>';
+		}
+		$html .= '<label><input type="checkbox" class="quality-any"' . ( $is_any_quality ? ' checked' : '' ) . '> ' . esc_html__( 'Toutes', 'all-in-one-download' ) . '</label>';
+		$html .= '</div>';
+		$html .= '</div>';
+
 		$html .= '<div class="alli1d-item-actions">';
 		$html .= '<button class="save-movie alli1d-save-btn">' . esc_html__( 'Sauvegarder', 'all-in-one-download' ) . '</button>';
-		$html .= '<button class="delete-fiche-btn alli1d-delete-btn" data-item-id="' . esc_attr( $this->item->get_id() ) . '" data-item-type="movie" title="' . esc_attr__( 'Supprimer cette fiche', 'all-in-one-download' ) . '">';
-		$html .= '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M9 3a3 3 0 0 1 6 0h5a1 1 0 1 1 0 2h-1.07l-.86 13.77A3 3 0 0 1 15.08 21H8.92a3 3 0 0 1-2.99-2.23L5.07 5H4a1 1 0 1 1 0-2h5Zm1 0a1 1 0 0 1 2 0h-2Zm7.07 2H6.93l.85 13.6a1 1 0 0 0 .99.8h6.16a1 1 0 0 0 .99-.8L17.07 5ZM9 9a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Zm3 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Z"/></svg>';
-		$html .= '</button>';
+		if ( current_user_can( 'alli1d_admin' ) ) {
+			$html .= '<button class="delete-fiche-btn alli1d-delete-btn" data-item-id="' . esc_attr( $this->item->get_id() ) . '" data-item-type="movie" title="' . esc_attr__( 'Supprimer cette fiche', 'all-in-one-download' ) . '">';
+			$html .= '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M9 3a3 3 0 0 1 6 0h5a1 1 0 1 1 0 2h-1.07l-.86 13.77A3 3 0 0 1 15.08 21H8.92a3 3 0 0 1-2.99-2.23L5.07 5H4a1 1 0 1 1 0-2h5Zm1 0a1 1 0 0 1 2 0h-2Zm7.07 2H6.93l.85 13.6a1 1 0 0 0 .99.8h6.16a1 1 0 0 0 .99-.8L17.07 5ZM9 9a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Zm3 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Z"/></svg>';
+			$html .= '</button>';
+		}
 		$html .= '</div>';
 
 		$html .= '</div>';

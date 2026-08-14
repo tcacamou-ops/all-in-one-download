@@ -35,6 +35,22 @@ class TvShowTest extends UnitTestCase {
 		$this->assertSame( 'VOSTFR', $show->get_audio_format() );
 	}
 
+	public function test_constructor_default_quality_is_1080p_2160p(): void {
+		$show = new TvShow( $this->valid_attrs() );
+		$this->assertSame( '1080p,2160p', $show->get_quality() );
+	}
+
+	public function test_get_quality_returns_constructor_value(): void {
+		$show = new TvShow( $this->valid_attrs( [ 'quality' => '1080p,2160p' ] ) );
+		$this->assertSame( '1080p,2160p', $show->get_quality() );
+	}
+
+	public function test_set_quality_round_trip_with_csv_value(): void {
+		$show = new TvShow( $this->valid_attrs() );
+		$show->set_quality( '720p,2160p' );
+		$this->assertSame( '720p,2160p', $show->get_quality() );
+	}
+
 	public function test_constructor_default_status_is_actif(): void {
 		$show = new TvShow( $this->valid_attrs() );
 		$this->assertSame( 'actif', $show->get_status() );

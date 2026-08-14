@@ -21,9 +21,8 @@ class Dashboard {
 		$logs_manager          = new LogsManager();
 		$provider_search_modal = new ProviderSearchModal();
 
-		// Shared toolbar with both toggle buttons.
+		// Shared floating toolbar (crons/logs toggles). Provider search toggle is rendered inline in ListingContainer.
 		echo '<div class="alli1d-toolbar">';
-		$provider_search_modal->render_toggle();
 		$crons_manager->render_toggle();
 		$logs_manager->render_toggle();
 		echo '</div>';
@@ -39,7 +38,7 @@ class Dashboard {
 		$search = isset( $_GET['search'] ) ? sanitize_text_field( wp_unslash( $_GET['search'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$type              = isset( $_GET['type'] ) ? sanitize_text_field( wp_unslash( $_GET['type'] ) ) : 'tvshow';
-		$listing_container = new ListingContainer( $type, $search );
+		$listing_container = new ListingContainer( $type, $search, $provider_search_modal );
 		$listing_container->render();
 	}
 }

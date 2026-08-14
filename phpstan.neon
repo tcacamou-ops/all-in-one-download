@@ -10,5 +10,9 @@ parameters:
         - all-in-one-download.php
     scanDirectories:
         - wordpress/wp-includes
+    ignoreErrors:
+        # WP-CLI is an optional dependency (guarded by `class_exists( 'WP_CLI' )` at
+        # runtime) and its stubs are not part of this project's dev dependencies.
+        - '#^Call to static method \w+\(\) on an unknown class WP_CLI\.$#'
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon

@@ -112,6 +112,11 @@ class MediaApi implements Api {
 		if ( empty( $url ) ) {
 			return rest_ensure_response( new \WP_Error( 'missing_url', 'URL manquante', [ 'status' => 400 ] ) );
 		}
+
+		if ( ! $this->is_valid_media_url( $url ) ) {
+			return rest_ensure_response( new \WP_Error( 'invalid_url', 'URL invalide', [ 'status' => 400 ] ) );
+		}
+
 		try {
 			$media_repository = MediaRepository::get_instance();
 			$media            = new Media( [ 'url' => $url ] );
@@ -120,6 +125,30 @@ class MediaApi implements Api {
 		} catch ( \Exception $e ) {
 			return rest_ensure_response( new \WP_Error( 'invalid_url', 'URL invalide', [ 'status' => 400 ] ) );
 		}
+	}
+
+	/**
+	 * Validate that the submitted URL is well-formed and uses http(s).
+	 *
+	 * @param string $url The URL to validate.
+	 * @return bool
+	 */
+	private function is_valid_media_url( $url ): bool {
+		if ( ! is_string( $url ) ) {
+			return false;
+		}
+
+		if ( false === filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return false;
+		}
+
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+
+		if ( ! in_array( strtolower( (string) $scheme ), [ 'http', 'https' ], true ) ) {
+			return false;
+		}
+
+		return null !== wp_http_validate_url( $url );
 	}
 
 	/**

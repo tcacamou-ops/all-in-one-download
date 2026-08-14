@@ -52,6 +52,18 @@
     stroke: #141414;
 }
 
+/* Provider search toggle, rendered inline next to #search-input instead of in the floating toolbar. */
+.alli1d-search-toggle .alli1d-toolbar-btn {
+    height: 48px;
+    background: #141414;
+    color: #fff;
+}
+
+.alli1d-search-toggle .alli1d-toolbar-btn:hover {
+    background: #2a2a2a;
+    color: #fff;
+}
+
 .alli1d-banner-btn {
     display: inline-flex;
     align-items: center;

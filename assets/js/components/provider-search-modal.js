@@ -24,7 +24,8 @@ var state = {
         saison: 1,
         episode: 1,
         suivi: true,
-        audio_format: ''
+        audio_format: '',
+        quality: ['any']
     },
     results: { items: [], errors: {} },
     filters: { quality: '', language: '', provider: '' },
@@ -39,7 +40,8 @@ function resetState() {
             saison: 1,
             episode: 1,
             suivi: true,
-            audio_format: ''
+            audio_format: '',
+            quality: ['1080p', '2160p']
         },
         results: { items: [], errors: {} },
         filters: { quality: '', language: '', provider: '' },
@@ -103,6 +105,15 @@ function renderStep1() {
         +       '<option value="MULTI"' + ( c.audio_format === 'MULTI' ? ' selected' : '' ) + '>MULTI</option>'
         +     '</select>'
         +   '</div>'
+        +   '<div class="alli1d-field">'
+        +     '<label>Qualité</label>'
+        +     '<div class="quality-group">'
+        +       '<label><input type="checkbox" class="quality-tier" value="720p"' + ( c.quality.indexOf('720p') !== -1 ? ' checked' : '' ) + ( c.quality.indexOf('any') !== -1 ? ' disabled' : '' ) + '> HD (720p)</label>'
+        +       '<label><input type="checkbox" class="quality-tier" value="1080p"' + ( c.quality.indexOf('1080p') !== -1 ? ' checked' : '' ) + ( c.quality.indexOf('any') !== -1 ? ' disabled' : '' ) + '> 1080p</label>'
+        +       '<label><input type="checkbox" class="quality-tier" value="2160p"' + ( c.quality.indexOf('2160p') !== -1 ? ' checked' : '' ) + ( c.quality.indexOf('any') !== -1 ? ' disabled' : '' ) + '> 4K (2160p)</label>'
+        +       '<label><input type="checkbox" class="quality-any"' + ( c.quality.indexOf('any') !== -1 ? ' checked' : '' ) + '> Toutes</label>'
+        +     '</div>'
+        +   '</div>'
         +   '<button type="submit" class="alli1d-save-btn">Rechercher</button>'
         + '</form>';
     renderRoot(html);
@@ -112,6 +123,26 @@ $(document).on('change', '#alli1d-search-type', function () {
     var isTvShow = $(this).val() === 'tvshow';
     $('#alli1d-search-tvshow-fields').toggle(isTvShow);
 });
+
+$(document).on('change', '#alli1d-search-criteria-form .quality-any', function () {
+    var $tiers = $(this).closest('.quality-group').find('.quality-tier');
+    if ($(this).is(':checked')) {
+        $tiers.prop('checked', false).prop('disabled', true);
+    } else {
+        $tiers.prop('disabled', false);
+    }
+});
+
+function getCriteriaQuality() {
+    var isAny = $('#alli1d-search-criteria-form .quality-any').is(':checked');
+    var quality = $('#alli1d-search-criteria-form .quality-group input.quality-tier:checked').map(function () {
+        return this.value;
+    }).get();
+    if (isAny || quality.length === 0) {
+        return ['any'];
+    }
+    return quality;
+}
 
 $(document).on('submit', '#alli1d-search-criteria-form', function (e) {
     e.preventDefault();
@@ -123,7 +154,8 @@ $(document).on('submit', '#alli1d-search-criteria-form', function (e) {
         saison: type === 'tvshow' ? parseInt($('#alli1d-search-saison').val(), 10) || 1 : null,
         episode: type === 'tvshow' ? parseInt($('#alli1d-search-episode').val(), 10) || 0 : null,
         suivi: type === 'tvshow' ? $('#alli1d-search-suivi').is(':checked') : false,
-        audio_format: $('#alli1d-search-audio-format').val()
+        audio_format: $('#alli1d-search-audio-format').val(),
+        quality: getCriteriaQuality()
     };
 
     renderLoading();
@@ -352,7 +384,8 @@ $(document).on('submit', '#alli1d-search-confirm-form', function (e) {
         saison: isTvShow ? ( parseInt($('#alli1d-confirm-saison').val(), 10) || 1 ) : 0,
         episode: isTvShow ? ( parseInt($('#alli1d-confirm-episode').val(), 10) || 0 ) : 0,
         suivi: isTvShow ? $('#alli1d-confirm-suivi').is(':checked') : false,
-        audio_format: c.audio_format
+        audio_format: c.audio_format,
+        quality: c.quality
     };
 
     allI1d.requestWPApi(

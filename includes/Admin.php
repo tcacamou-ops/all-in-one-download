@@ -77,9 +77,28 @@ class Admin {
 	}
 
 	/**
+	 * Determine whether the current admin screen belongs to this plugin.
+	 *
+	 * @return bool
+	 */
+	private function is_plugin_screen(): bool {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+
+		return $screen && strpos( $screen->id, 'all-in-one-download' ) !== false;
+	}
+
+	/**
 	 * Enqueue admin scripts.
 	 */
 	public function admin_enqueue_scripts(): void {
+		if ( ! $this->is_plugin_screen() ) {
+			return;
+		}
+
 		// Enqueue le script JavaScript pour l'administration.
 		wp_enqueue_script(
 			'allI1d-admin', // Handle du script.
@@ -149,14 +168,10 @@ class Admin {
 		wp_localize_script(
 			'allI1d-admin',
 			'allI1d',
-			[ 'api' => $api->get_data() ]
-		);
-		wp_enqueue_script(
-			'listing-container-script',
-			'https://cdn.tailwindcss.com?plugins=forms,container-queries',
-			[ 'jquery' ],
-			'1.0.0',
-			true
+			[
+				'api'     => $api->get_data(),
+				'isAdmin' => current_user_can( 'alli1d_admin' ),
+			]
 		);
 	}
 
@@ -164,11 +179,25 @@ class Admin {
 	 * Enqueue admin styles.
 	 */
 	public function admin_enqueue_styles(): void {
+		if ( ! $this->is_plugin_screen() ) {
+			return;
+		}
+
+		// Feuille de style Tailwind compilée localement (voir tailwind.config.js
+		// et assets/css/tailwind-build.css), en remplacement du script CDN
+		// https://cdn.tailwindcss.com anciennement chargé sans SRI.
+		wp_enqueue_style(
+			'allI1d-tailwind-css',
+			ALLI1D_URL . 'assets/css/tailwind-build.css',
+			[],
+			'1.0.0'
+		);
+
 		// Enqueue le CSS pour l'administration.
 		wp_enqueue_style(
 			'allI1d-admin-css', // Handle du style.
 			ALLI1D_URL . 'assets/css/allI1d-admin.css', // URL du style.
-			[],
+			[ 'allI1d-tailwind-css' ],
 			'1.0.0' // Version.
 		);
 		wp_enqueue_style(

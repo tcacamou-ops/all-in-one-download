@@ -12,7 +12,7 @@ All-in-one Download centralizes and automates the management of media downloads 
 - **Movies & TV Shows**: full support for both types, including seasons and episodes
 - **URL processing**: add a download link and let the cron handle the rest
 - **Auto-detection**: identifies media type automatically
-- **Metadata**: title, cover image, audio format, status
+- **Metadata**: title, cover image, audio format, video quality preference (any / 720p / 1080p / 2160p, multi-select), status
 - **Statuses**: active, inactive, downloaded
 
 ### Admin Dashboard
@@ -45,6 +45,7 @@ All-in-one Download centralizes and automates the management of media downloads 
 | `POST /media` | Add a new media URL |
 | `GET /movie` | Movie operations |
 | `GET /tvshow` | TV show operations |
+| `POST /indexing/reset` | Reset all indexing state — empties the feed catalog and clears `general_search_done` for every movie and TV show |
 
 All routes require the `alli1d` capability.
 

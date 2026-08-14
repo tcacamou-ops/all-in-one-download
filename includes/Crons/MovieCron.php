@@ -1,7 +1,6 @@
 <?php
 namespace AllI1D\Crons;
 
-use AllI1D\Models\Movie;
 use AllI1D\Models\Repositories\MovieRepository;
 use AllI1D\Actions\Logs;
 
@@ -37,13 +36,17 @@ class MovieCron {
 		foreach ( $movies as $movie ) {
 			do_action( 'alli1d_log', 'Processing movie: ' . $movie->get_search_title(), Logs::DEBUG, Logs::FILMS_LOG );
 			$what = [
-				'title'        => $movie->get_search_title(),
-				'audio_format' => $movie->get_audio_format(),
-				'found'        => false,
-				'results'      => [],
+				'title'               => $movie->get_search_title(),
+				'audio_format'        => $movie->get_audio_format(),
+				'quality'             => $movie->get_quality(),
+				'found'               => false,
+				'results'             => [],
+				'general_search_done' => $movie->get_general_search_done(),
 			];
 			// do_action('alli1d_log', print_r($what, true), Logs::DEBUG, Logs::FILMS_LOG).
 			$retour = apply_filters( 'alli1d_process_movie', $what );
+			// Une recherche générale a été effectuée, quel que soit le résultat renvoyé par le filtre.
+			$movie->set_general_search_done( true );
 			if ( true === $retour['found'] ) {
 				do_action( 'alli1d_log', 'Torrent Found ', Logs::DEBUG, Logs::FILMS_LOG );
 				$download_item                   = $retour['results'][0];
@@ -56,10 +59,10 @@ class MovieCron {
 				} else {
 					do_action( 'alli1d_log', 'Download failed : ' . $movie->get_title(), Logs::ERROR, Logs::FILMS_LOG );
 				}
-				$movies_repository->save_movie( $movie );
 			} else {
 				do_action( 'alli1d_log', 'No torrent found', Logs::DEBUG, Logs::FILMS_LOG );
 			}
+			$movies_repository->save_movie( $movie );
 		}
 		do_action( 'alli1d_log', 'Movie Cron finished.', Logs::NOTICE, Logs::FILMS_LOG );
 		delete_transient( 'alli1d_movies_cron_running' );

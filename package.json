@@ -1,0 +1,13 @@
+{
+  "name": "all-in-one-download",
+  "private": true,
+  "description": "Build tooling for the plugin's static Tailwind CSS asset (see assets/css/tailwind-build.css). Not required at runtime.",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i assets/css/tailwind-src.css -o assets/css/tailwind-build.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.7",
+    "tailwindcss": "^3.4.13"
+  }
+}

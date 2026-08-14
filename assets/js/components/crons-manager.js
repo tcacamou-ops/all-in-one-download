@@ -20,6 +20,8 @@ jQuery(document).ready(function ($) {
     $document.on('click', '#media-sync-cron', media_sync_cron);
     $document.on('click', '#tv-show-cron', tv_show_cron);
     $document.on('click', '#movie-cron', movie_cron);
+    $document.on('click', '#feed-catalog-cron', feed_catalog_cron);
+    $document.on('click', '#reset-indexing-button', reset_indexing);
     $document.on('click', '#toggle-cron-banner', function() {
         allI1d.toggle_cron_banner($('#cron-status-banner').is(':hidden'));
     });
@@ -73,6 +75,37 @@ jQuery(document).ready(function ($) {
             'GET',
             function(request, error) {
                 allI1d.showToast('Error in cron: ' + request.responseJSON.message, 'error');
+            }
+        );
+    }
+
+    function feed_catalog_cron(event) {
+        allI1d.requestWPApi(
+            allI1d.api.routes.feed_catalog_run_cron,
+            {},
+            function(response, data) {
+                allI1d.showToast('Feed catalog indexing cron started', 'success');
+            },
+            'GET',
+            function(request, error) {
+                allI1d.showToast('Error in cron: ' + request.responseJSON.message, 'error');
+            }
+        );
+    }
+
+    function reset_indexing(event) {
+        if (!window.confirm('Réinitialiser l\'indexation ? Cette action vide le catalogue indexé et remet à zéro le suivi de recherche générale pour tous les films et séries. Cette action est irréversible.')) {
+            return;
+        }
+        allI1d.requestWPApi(
+            allI1d.api.routes.indexing_reset,
+            {},
+            function(response, data) {
+                allI1d.showToast('Indexation réinitialisée (' + response.catalog_removed + ' entrées catalogue supprimées)', 'success');
+            },
+            'POST',
+            function(request, error) {
+                allI1d.showToast('Erreur lors de la réinitialisation : ' + (request.responseJSON ? request.responseJSON.message : error), 'error');
             }
         );
     }

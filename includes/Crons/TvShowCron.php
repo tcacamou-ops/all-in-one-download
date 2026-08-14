@@ -1,7 +1,6 @@
 <?php
 namespace AllI1D\Crons;
 
-use AllI1D\Models\TvShow;
 use AllI1D\Models\Repositories\TvShowRepository;
 use AllI1D\Actions\Logs;
 
@@ -40,7 +39,7 @@ class TvShowCron {
 				do_action( 'alli1d_log', 'No seasons found for TV Show: ' . $tv_show->get_title(), Logs::WARNING, Logs::SERIES_LOG );
 				continue;
 			}
-			foreach ( $saisons as $key => $saison ) {
+			foreach ( $saisons as $saison ) {
 				// Logique pour parcourir chaque saison.
 				if ( 'actif' !== $saison['status'] ) {
 					do_action( 'alli1d_log', 'Saison ' . $saison['id'] . ' is not active.', Logs::WARNING, Logs::SERIES_LOG );
@@ -49,11 +48,13 @@ class TvShowCron {
 				do_action( 'alli1d_log', 'Processing Season: ' . $saison['id'], Logs::DEBUG, Logs::SERIES_LOG );
 				$episode = $saison['lastepisode'];
 				$what    = [
-					'title'        => $tv_show->get_search_title(),
-					'saison'       => $saison['id'],
-					'audio_format' => $tv_show->get_audio_format(),
-					'found'        => false,
-					'results'      => [],
+					'title'               => $tv_show->get_search_title(),
+					'saison'              => $saison['id'],
+					'audio_format'        => $tv_show->get_audio_format(),
+					'quality'             => $tv_show->get_quality(),
+					'found'               => false,
+					'results'             => [],
+					'general_search_done' => $tv_show->is_general_search_done( $saison['id'], $episode ),
 				];
 				if ( 0 === $episode ) {
 					do_action( 'alli1d_log', 'The beginning we try a full saison', Logs::DEBUG, Logs::SERIES_LOG );
@@ -68,6 +69,8 @@ class TvShowCron {
 						do_action( 'alli1d_log', 'Download Item : ' . wp_json_encode( $download_item ), Logs::DEBUG, Logs::SERIES_LOG );
 						if ( true === $downloaded['downloaded'] ) {
 							$tv_show->next_saison( $saison['id'] )->enable_saison( $saison['id'], false );
+							// La saison a été téléchargée, la recherche générale devra être refaite pour la nouvelle saison.
+							$tv_show->mark_general_search_done( $saison['id'], $episode, false );
 							do_action( 'alli1d_log', 'Download launch : ' . $saison['id'] . ' - ' . $episode, Logs::NOTICE, Logs::SERIES_LOG );
 							$tv_show_repository->save_tv_show( $tv_show );
 							continue;
@@ -78,11 +81,14 @@ class TvShowCron {
 				}
 				++$episode;
 				do_action( 'alli1d_log', 'Episode: ' . $episode, Logs::DEBUG, Logs::SERIES_LOG );
-				$what['episode'] = $episode;
-				$what['found']   = false;
-				$what['results'] = [];
-				$retour          = apply_filters( 'alli1d_process_tvshow', $what );
+				$what['episode']             = $episode;
+				$what['found']               = false;
+				$what['results']             = [];
+				$what['general_search_done'] = $tv_show->is_general_search_done( $saison['id'], $episode );
+				$retour                      = apply_filters( 'alli1d_process_tvshow', $what );
 				// do_action('alli1d_log', wp_json_encode($what), Logs::DEBUG, Logs::SERIES_LOG).
+				// Une recherche générale a été effectuée, quel que soit le résultat renvoyé par le filtre.
+				$tv_show->mark_general_search_done( $saison['id'], $episode, true );
 				if ( true === $retour['found'] ) {
 					$download_item                   = $retour['results'][0];
 					$download_item['downloaded']     = false;
@@ -91,6 +97,8 @@ class TvShowCron {
 					if ( true === $downloaded['downloaded'] ) {
 						$tv_show = $tv_show->next_episode( $saison['id'], $episode );
 						$tv_show = $tv_show->next_saison( $saison['id'] );
+						// L'épisode a été trouvé, la recherche générale devra être refaite pour l'épisode suivant.
+						$tv_show->mark_general_search_done( $saison['id'], $episode, false );
 						do_action( 'alli1d_log', 'Download launch : ' . $saison['id'] . ' - ' . $episode, Logs::NOTICE, Logs::SERIES_LOG );
 					} else {
 						do_action( 'alli1d_log', 'Download failed : ' . $saison['id'] . ' - ' . $episode, Logs::ERROR, Logs::SERIES_LOG );

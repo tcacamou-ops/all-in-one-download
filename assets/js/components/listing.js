@@ -157,10 +157,32 @@ jQuery(document).ready(function ($) {
             'DELETE',
             function (request, error) {
                 allI1d.closeModale();
-                allI1d.showToast('Erreur lors de la suppression !', 'error');
+                if (request.status === 403) {
+                    allI1d.showToast('Vous n\'avez pas les droits pour supprimer cette fiche.', 'error');
+                } else {
+                    allI1d.showToast('Erreur lors de la suppression !', 'error');
+                }
             }
         );
     });
+
+    $(document).on('change', '.quality-any', function () {
+        let tiers = $(this).closest('.quality-group').find('.quality-tier');
+        if ($(this).is(':checked')) {
+            tiers.prop('checked', false).prop('disabled', true);
+        } else {
+            tiers.prop('disabled', false);
+        }
+    });
+
+    function getSelectedQuality() {
+        let isAny = $('.quality-any').is(':checked');
+        let quality = $('.quality-group input.quality-tier:checked').map((_, el) => el.value).get();
+        if (isAny || quality.length === 0) {
+            return ['any'];
+        }
+        return quality;
+    }
 
     $(document).on('click', '.save-tv-show', function () {
         console.log('Save TV Show button clicked');
@@ -193,6 +215,7 @@ jQuery(document).ready(function ($) {
         let searchTitle = $('.search_title').val();
         let status = $('.status').val();
         let audioFormat = $('.audio_format').val();
+        let quality = getSelectedQuality();
         let itemId = $('.item-id').val();
 
         allI1d.requestWPApi(
@@ -202,6 +225,7 @@ jQuery(document).ready(function ($) {
                 tvShowStatus: status,
                 tvShowSearchTitle: searchTitle,
                 tvShowAudioFormat: audioFormat,
+                tvShowQuality: quality,
                 tvShowSeasons: seasons
             },
             function (response, data) {
@@ -223,6 +247,7 @@ jQuery(document).ready(function ($) {
 		let searchTitle = $('.search_title').val();
 		let status = $('.status').val();
 		let audioFormat = $('.audio_format').val();
+		let quality = getSelectedQuality();
 		let itemId = $('.item-id').val();
 		console.log('Item ID:', itemId);
 		console.log('Search Title:', searchTitle);
@@ -234,7 +259,8 @@ jQuery(document).ready(function ($) {
 				movieId: itemId,
 				movieStatus: status,
 				movieSearchTitle: searchTitle,
-				movieAudioFormat: audioFormat
+				movieAudioFormat: audioFormat,
+				movieQuality: quality
 			},
 			function (response, data) {
 				allI1d.closeModale();

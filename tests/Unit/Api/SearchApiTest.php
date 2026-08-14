@@ -421,6 +421,82 @@ class SearchApiTest extends UnitTestCase {
 		$this->assertSame( 'downloaded', $wpdb->last_inserted['status'] );
 	}
 
+	public function test_select_movie_persists_quality_csv_on_new_item_creation(): void {
+		$this->download_selected_result_callback = fn( $null, $result ) => [
+			'type' => 'torrent',
+			'path' => '/downloads/x.torrent',
+		];
+		$wpdb                                    = $this->reset_repositories( [] );
+
+		$api = new SearchApi( 'all-i1d/v1' );
+		$api->select(
+			$this->make_request(
+				[
+					'provider' => 'tr4ker',
+					'result'   => [ 'id' => 'abc' ],
+					'type'     => 'movie',
+					'title'    => 'Brand New Movie',
+					'suivi'    => false,
+					'quality'  => [ '1080p', '2160p' ],
+				]
+				)
+			);
+
+		$this->assertNotNull( $wpdb->last_inserted );
+		$this->assertSame( '1080p,2160p', $wpdb->last_inserted['quality'] );
+	}
+
+	public function test_select_movie_persists_default_quality_when_param_missing_on_new_item_creation(): void {
+		$this->download_selected_result_callback = fn( $null, $result ) => [
+			'type' => 'torrent',
+			'path' => '/downloads/x.torrent',
+		];
+		$wpdb                                    = $this->reset_repositories( [] );
+
+		$api = new SearchApi( 'all-i1d/v1' );
+		$api->select(
+			$this->make_request(
+				[
+					'provider' => 'tr4ker',
+					'result'   => [ 'id' => 'abc' ],
+					'type'     => 'movie',
+					'title'    => 'Brand New Movie',
+					'suivi'    => false,
+				]
+				)
+			);
+
+		$this->assertNotNull( $wpdb->last_inserted );
+		$this->assertSame( '1080p,2160p', $wpdb->last_inserted['quality'] );
+	}
+
+	public function test_select_tvshow_persists_quality_csv_on_new_item_creation(): void {
+		$this->download_selected_result_callback = fn( $null, $result ) => [
+			'type' => 'torrent',
+			'path' => '/downloads/x.torrent',
+		];
+		$wpdb                                    = $this->reset_repositories( [] );
+
+		$api = new SearchApi( 'all-i1d/v1' );
+		$api->select(
+			$this->make_request(
+				[
+					'provider' => 'tr4ker',
+					'result'   => [ 'id' => 'abc' ],
+					'type'     => 'tvshow',
+					'title'    => 'Brand New Show',
+					'saison'   => 1,
+					'episode'  => 1,
+					'suivi'    => false,
+					'quality'  => [ '1080p', '2160p' ],
+				]
+				)
+			);
+
+		$this->assertNotNull( $wpdb->last_inserted );
+		$this->assertSame( '1080p,2160p', $wpdb->last_inserted['quality'] );
+	}
+
 	// -------------------------------------------------------------------------
 	// select() — tvshow, suivi = true
 	// -------------------------------------------------------------------------

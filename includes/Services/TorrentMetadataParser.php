@@ -25,6 +25,23 @@ class TorrentMetadataParser {
 	];
 
 	/**
+	 * Selectable video quality preferences, i.e. the tiers a user may pick as
+	 * a per-movie/tv-show preference. Excludes '480p' (never a deliberate
+	 * choice) and 'any' (handled separately as the exclusive/default case).
+	 *
+	 * @var string[]
+	 */
+	public const SELECTABLE_QUALITIES = [ '720p', '1080p', '2160p' ];
+
+	/**
+	 * Default `quality` preference for both new `Movie`/`TvShow` items and
+	 * pre-existing rows backfilled by the `quality` column migration —
+	 * everyone gets "1080p or 2160p" unless they explicitly opt into another
+	 * selection (including the exclusive `any`/"Toutes" choice).
+	 */
+	public const DEFAULT_QUALITY = '1080p,2160p';
+
+	/**
 	 * Language tags, checked in order.
 	 *
 	 * @var string[]
@@ -49,6 +66,30 @@ class TorrentMetadataParser {
 	 */
 	public function extract_quality( string $release_title ): ?string {
 		return $this->find_tag( $release_title, self::QUALITY_TAGS );
+	}
+
+	/**
+	 * Normalize a raw quality tag (as returned by `extract_quality()`) to one
+	 * of `SELECTABLE_QUALITIES`, resolving the `4k`/`2160p` alias to a single
+	 * canonical token. Returns null for unrecognized/null input, including
+	 * '480p', which is parseable but never a valid selection or matchable
+	 * target.
+	 *
+	 * @param string|null $quality Raw quality tag, e.g. '4k', '1080p', or null.
+	 * @return string|null
+	 */
+	public function normalize_quality( ?string $quality ): ?string {
+		if ( null === $quality || '' === $quality ) {
+			return null;
+		}
+
+		$quality = strtolower( $quality );
+
+		if ( '4k' === $quality ) {
+			$quality = '2160p';
+		}
+
+		return in_array( $quality, self::SELECTABLE_QUALITIES, true ) ? $quality : null;
 	}
 
 	/**
