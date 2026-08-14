@@ -147,7 +147,10 @@ class TorrentTitleMatcher {
 		$title        = (string) ( $context['title'] ?? '' );
 		$year         = isset( $context['year'] ) ? (int) $context['year'] : null;
 		$saison       = isset( $context['saison'] ) ? (int) $context['saison'] : null;
-		$episode      = isset( $context['episode'] ) ? (int) $context['episode'] : null;
+		// Episode 0 is the sentinel TvShowCron sends for a "full season, no
+		// specific episode yet" search — episodes never actually start at 0,
+		// so treat it the same as "no episode constraint" (null).
+		$episode = ( isset( $context['episode'] ) && 0 !== (int) $context['episode'] ) ? (int) $context['episode'] : null;
 
 		if ( '' === trim( $torrent_name ) || '' === trim( $title ) ) {
 			return true;

@@ -21,6 +21,58 @@ class TorrentTitleMatcherTest extends UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// matches — season/episode ("full season" sentinel)
+	// -------------------------------------------------------------------------
+
+	public function test_matches_accepts_single_episode_torrent_when_episode_context_is_zero(): void {
+		// TvShowCron sends episode = 0 as a "full season, no specific episode
+		// yet" sentinel. A per-episode torrent (no season pack released yet)
+		// must still be accepted for the requested season.
+		$this->assertTrue(
+			$this->matcher->matches(
+				true,
+				[
+					'torrent_name' => 'Ted.Lasso.S04E01.MULTi.1080p.WEB.EAC3.5.1.H264-GL0P',
+					'title'        => 'Ted Lasso',
+					'year'         => null,
+					'saison'       => 4,
+					'episode'      => 0,
+				]
+			)
+		);
+	}
+
+	public function test_matches_rejects_wrong_season_when_episode_context_is_zero(): void {
+		$this->assertFalse(
+			$this->matcher->matches(
+				true,
+				[
+					'torrent_name' => 'Ted.Lasso.S03E01.MULTi.1080p.WEB.EAC3.5.1.H264-GL0P',
+					'title'        => 'Ted Lasso',
+					'year'         => null,
+					'saison'       => 4,
+					'episode'      => 0,
+				]
+			)
+		);
+	}
+
+	public function test_matches_still_enforces_a_real_episode_number(): void {
+		$this->assertFalse(
+			$this->matcher->matches(
+				true,
+				[
+					'torrent_name' => 'Ted.Lasso.S04E02.MULTi.1080p.WEB.EAC3.5.1.H264-GL0P',
+					'title'        => 'Ted Lasso',
+					'year'         => null,
+					'saison'       => 4,
+					'episode'      => 1,
+				]
+			)
+		);
+	}
+
+	// -------------------------------------------------------------------------
 	// matches_quality — short-circuit behaviour
 	// -------------------------------------------------------------------------
 
