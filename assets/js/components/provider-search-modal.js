@@ -53,6 +53,15 @@ function escapeHtml(value) {
     return $('<span>').text(value == null ? '' : value).html();
 }
 
+// Nettoie un titre de torrent brut (séparateurs `.`/`_`/`?`) pour pré-remplir
+// le champ Titre de la confirmation de façon plus lisible pour l'utilisateur.
+function humanizeTitle(title) {
+    return (title || '')
+        .replace(/[._?]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function renderRoot(innerHtml) {
     var $root = $('#alli1d-search-modal');
     if ($root.length) {
@@ -333,7 +342,7 @@ function renderStep3() {
         + '<form id="alli1d-search-confirm-form" class="alli1d-search-form">'
         +   '<div class="alli1d-field">'
         +     '<label>Titre</label>'
-        +     '<input type="text" id="alli1d-confirm-title" value="' + escapeHtml(item.title) + '">'
+        +     '<input type="text" id="alli1d-confirm-title" value="' + escapeHtml(humanizeTitle(item.title)) + '">'
         +   '</div>';
 
     if (isTvShow) {

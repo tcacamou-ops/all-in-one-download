@@ -497,6 +497,67 @@ class SearchApiTest extends UnitTestCase {
 		$this->assertSame( '1080p,2160p', $wpdb->last_inserted['quality'] );
 	}
 
+	public function test_select_args_quality_enum_allows_any(): void {
+		$api    = new SearchApi( 'all-i1d/v1' );
+		$method = new \ReflectionMethod( SearchApi::class, 'get_select_args' );
+		$method->setAccessible( true );
+		$args = $method->invoke( $api );
+
+		$this->assertContains( 'any', $args['quality']['items']['enum'] );
+	}
+
+	public function test_select_movie_persists_any_quality_on_new_item_creation(): void {
+		$this->download_selected_result_callback = fn( $null, $result ) => [
+			'type' => 'torrent',
+			'path' => '/downloads/x.torrent',
+		];
+		$wpdb                                    = $this->reset_repositories( [] );
+
+		$api = new SearchApi( 'all-i1d/v1' );
+		$api->select(
+			$this->make_request(
+				[
+					'provider' => 'tr4ker',
+					'result'   => [ 'id' => 'abc' ],
+					'type'     => 'movie',
+					'title'    => 'Brand New Movie',
+					'suivi'    => false,
+					'quality'  => [ 'any' ],
+				]
+				)
+			);
+
+		$this->assertNotNull( $wpdb->last_inserted );
+		$this->assertSame( 'any', $wpdb->last_inserted['quality'] );
+	}
+
+	public function test_select_tvshow_persists_any_quality_on_new_item_creation(): void {
+		$this->download_selected_result_callback = fn( $null, $result ) => [
+			'type' => 'torrent',
+			'path' => '/downloads/x.torrent',
+		];
+		$wpdb                                    = $this->reset_repositories( [] );
+
+		$api = new SearchApi( 'all-i1d/v1' );
+		$api->select(
+			$this->make_request(
+				[
+					'provider' => 'tr4ker',
+					'result'   => [ 'id' => 'abc' ],
+					'type'     => 'tvshow',
+					'title'    => 'Brand New Show',
+					'saison'   => 1,
+					'episode'  => 1,
+					'suivi'    => false,
+					'quality'  => [ 'any' ],
+				]
+				)
+			);
+
+		$this->assertNotNull( $wpdb->last_inserted );
+		$this->assertSame( 'any', $wpdb->last_inserted['quality'] );
+	}
+
 	// -------------------------------------------------------------------------
 	// select() — tvshow, suivi = true
 	// -------------------------------------------------------------------------

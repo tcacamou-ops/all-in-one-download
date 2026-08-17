@@ -4,7 +4,7 @@ Tags: download, media, movies, tv-shows, automation
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: Proprietary
 License URI: 
 
@@ -101,6 +101,11 @@ The system automatically detects existing media by title and adds new URLs to ex
 5. Detailed media view with metadata
 
 == Changelog ==
+
+= 1.0.11 =
+* Fixed: direct download from the provider search modal failed with "Invalid parameter:quality" when the quality filter was set to "Toutes" (`quality: ['any']` was rejected by the `search/select` REST route's argument schema)
+* Fixed: toast messages (success/error) were hidden behind the blurred modal overlay, making error messages unreadable while a modal was open
+* Changed: the pre-filled title field in the search confirm step now replaces `.`/`_`/`?` separators with spaces for a more readable default
 
 = 1.0.8 =
 * Added: multi-select video quality preference (any / 720p / 1080p / 2160p) per movie and TV show, with exact-set matching against parsed torrent quality

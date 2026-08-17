@@ -174,7 +174,7 @@ class SearchApi implements Api {
 				'type'  => 'array',
 				'items' => [
 					'type' => 'string',
-					'enum' => TorrentMetadataParser::SELECTABLE_QUALITIES,
+					'enum' => array_merge( [ 'any' ], TorrentMetadataParser::SELECTABLE_QUALITIES ),
 				],
 			],
 		];
